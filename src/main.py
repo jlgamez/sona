@@ -21,10 +21,8 @@ def main() -> None:
     if ffmpeg_executable is None:
         print(
             "Error: ffmpeg executable not found.\n"
-            "Please install ffmpeg:\n"
-            "  macOS: brew install ffmpeg\n"
-            "  Linux: apt-get install ffmpeg / yum install ffmpeg\n"
-            "  Windows: Download from https://ffmpeg.org/download.html",
+            "Please download ffmpeg from https://www.ffmpeg.org/download.html\n"
+            "Place the executable in the project root directory",
             file=sys.stderr,
         )
         sys.exit(1)
