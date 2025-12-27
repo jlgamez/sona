@@ -1,0 +1,53 @@
+"""Audio Recorder CLI Test Script.
+
+This script allows manual testing of the FfmpegAudioRecorder implementation.
+Type 'start' to begin recording, 'stop' to end and save, and 'discard' to cancel.
+"""
+from __future__ import annotations
+
+import sys
+import time
+from pathlib import Path
+
+from src.audio.ffmpeg_audio_recorder import FfmpegAudioRecorder
+from src.controllers.hot_key.hotkey_actions import HotKeyActions
+from src.controllers.hot_key.hotkey_controller_impl import HotKeyControllerImpl
+from src.utils.ffmpeg_utils import resolve_ffmpeg_executable
+
+
+def main() -> None:
+
+    ffmpeg_executable = resolve_ffmpeg_executable()
+    if ffmpeg_executable is None:
+        print(
+            "Error: ffmpeg executable not found.\n"
+            "Please install ffmpeg:\n"
+            "  macOS: brew install ffmpeg\n"
+            "  Linux: apt-get install ffmpeg / yum install ffmpeg\n"
+            "  Windows: Download from https://ffmpeg.org/download.html",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    temp_audio_directory = Path(__file__).parent / "audio" / "resources" / "temp_audio"
+
+    recorder = FfmpegAudioRecorder(
+        output_dir=temp_audio_directory,
+        ffmpeg_executable=str(ffmpeg_executable),
+    )
+
+    hot_key_actions = HotKeyActions(recorder=recorder)
+    hot_key_controller = HotKeyControllerImpl(hot_key_actions=hot_key_actions)
+    hot_key_controller.start_listening()
+    print("Hotkey listener started. Press Ctrl+Left to record.")
+
+    # Keep main thread alive so the background listener can run.
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nShutting down hotkey listener...")
+
+
+if __name__ == "__main__":
+    main()
