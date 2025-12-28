@@ -17,12 +17,12 @@ from src.controllers.transcription.background_transcription_orchestrator import 
 from src.controllers.transcription.cleanup_service import CleanupServiceImpl
 from src.controllers.transcription.model_adapter import ModelAdapterImpl
 from src.controllers.transcription.transcription_result_handler import TranscriptionResultHandlerImpl
-from src.utils.ffmpeg_utils import resolve_ffmpeg_executable
+from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
 
 
 def main() -> None:
 
-    ffmpeg_executable = resolve_ffmpeg_executable()
+    ffmpeg_executable = get_bundled_ffmpeg(Path(__file__).resolve().parent.parent)
     if ffmpeg_executable is None:
         print(
             "Error: ffmpeg executable not found.\n"
