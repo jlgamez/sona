@@ -21,3 +21,12 @@ class TranscriptionResultHandler(Protocol):
 
     def handle_error(self, exc: Exception) -> None:
         """Report a failure with context."""
+
+
+class TranscriptionResultHandlerImpl(TranscriptionResultHandler):
+    def handle_success(self, text: str) -> None:
+        print(f"[TRANSCRIPTION SUCCESS] {text}")
+
+    def handle_error(self, exc: Exception) -> None:
+        print(f"[TRANSCRIPTION ERROR] {type(exc).__name__}: {exc}")
+

@@ -9,9 +9,14 @@ import sys
 import time
 from pathlib import Path
 
+from src.audio.audio_loader import AudioValidatorImpl
 from src.audio.ffmpeg_audio_recorder import FfmpegAudioRecorder
 from src.controllers.hot_key.hotkey_actions import HotKeyActions
 from src.controllers.hot_key.hotkey_controller_impl import HotKeyControllerImpl
+from src.controllers.transcription.background_transcription_orchestrator import BackgroundTranscriptionOrchestratorImpl
+from src.controllers.transcription.cleanup_service import CleanupServiceImpl
+from src.controllers.transcription.model_adapter import ModelAdapterImpl
+from src.controllers.transcription.transcription_result_handler import TranscriptionResultHandlerImpl
 from src.utils.ffmpeg_utils import resolve_ffmpeg_executable
 
 
@@ -34,7 +39,14 @@ def main() -> None:
         ffmpeg_executable=str(ffmpeg_executable),
     )
 
-    hot_key_actions = HotKeyActions(recorder=recorder)
+    transcription_orchestrator = BackgroundTranscriptionOrchestratorImpl(
+        AudioValidatorImpl(),
+        ModelAdapterImpl(),
+        CleanupServiceImpl(),
+        TranscriptionResultHandlerImpl(),
+    )
+
+    hot_key_actions = HotKeyActions(recorder=recorder, orchestrator=transcription_orchestrator)
     hot_key_controller = HotKeyControllerImpl(hot_key_actions=hot_key_actions)
     hot_key_controller.start_listening()
     print("Hotkey listener started. Press Ctrl+Left to record.")

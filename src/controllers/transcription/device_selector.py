@@ -24,7 +24,7 @@ class DeviceSelector(Protocol):
         """Return True if fp16 is usable on the given device."""
 
 
-class DefaultDeviceSelector:
+class DeviceSelectorImpl(DeviceSelector):
     """DefaultDeviceSelector
 
     Responsibility:
@@ -49,8 +49,7 @@ class DefaultDeviceSelector:
 
     def select_device(self) -> str:
         """Select the best available device.
-
-        Decision order (lazy, resilient):
+        Decision order (lazy):
         1. MPS if torch with MPS backend is available.
         2. CUDA if torch with CUDA is available.
         3. CPU as fallback.
@@ -76,11 +75,6 @@ class DefaultDeviceSelector:
 
     def supports_fp16(self, device: str) -> bool:
         """Return True if using fp16 is likely beneficial and supported.
-
-        Heuristics:
-        - mps: Recent PyTorch on Apple Silicon supports fp16 for many ops; allow.
-        - cuda: Generally supports fp16 on modern GPUs; allow when CUDA available.
-        - cpu: fp16 is typically slower/less supported; disable.
         """
         if device == "cpu":
             return False

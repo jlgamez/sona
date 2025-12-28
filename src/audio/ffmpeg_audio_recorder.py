@@ -153,9 +153,10 @@ class FfmpegAudioRecorder(AudioRecorder):
         This method is idempotent: calling it when no recording is in progress
         is a no-op.
         """
-
         if self._process is None:
             return
+
+        print("Discarding current recording...")
 
         process = self._process
         output_path = self._current_temp_audio_file
@@ -164,6 +165,7 @@ class FfmpegAudioRecorder(AudioRecorder):
         self._current_temp_audio_file = None
 
         process.terminate()
+
         try:
             process.wait(timeout=5)
         except subprocess.TimeoutExpired:
@@ -199,7 +201,7 @@ class FfmpegAudioRecorder(AudioRecorder):
         """
 
         if sys.platform == "darwin":
-            # macOS: avfoundation input, default audio device is index 0.
+            #TODO In my case the default mic in Mac is :1 but we need a way to determine the default mic programatically
             return ["-f", "avfoundation", "-i", ":1"]
 
         if sys.platform.startswith("win"):
