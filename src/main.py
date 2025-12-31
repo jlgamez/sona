@@ -33,8 +33,7 @@ def main() -> None:
         sys.exit(1)
 
     temp_audio_directory = Path(__file__).parent / "audio" / "resources" / "temp_audio"
-
-    recorder = FfmpegAudioRecorder(
+    audio_recorder = FfmpegAudioRecorder(
         output_dir=temp_audio_directory,
         ffmpeg_executable=str(ffmpeg_executable),
     )
@@ -46,7 +45,7 @@ def main() -> None:
         TranscriptionResultHandlerImpl(),
     )
 
-    hot_key_actions = HotKeyActions(recorder=recorder, orchestrator=transcription_orchestrator)
+    hot_key_actions = HotKeyActions(recorder=audio_recorder, orchestrator=transcription_orchestrator)
     hot_key_controller = HotKeyControllerImpl(hot_key_actions=hot_key_actions)
     hot_key_controller.start_listening()
     print("Hotkey listener started. Press Ctrl+Left to record.")
