@@ -29,7 +29,7 @@ class TranscriptionResultHandlerImpl(TranscriptionResultHandler):
     def handle_success(self, text: str) -> None:
         print(f"[TRANSCRIPTION SUCCESS] {text}")
         # add new line
-        text_with_newline = text + "\n"
+        text_with_newline = text + "\n\n"
         # TODO: adapt copy paste cmd for cross platform
         try:
             copy = subprocess.Popen(["pbcopy"], stdin=subprocess.PIPE)
