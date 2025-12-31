@@ -48,8 +48,9 @@ coverage.xml
 .pytest_cache/
 
 # Translations
-*.mo
-*.pot
+
+# Ignore all prompt_files content
+prompt_files/
 
 # Django stuff:
 *.log
