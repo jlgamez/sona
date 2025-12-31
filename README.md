@@ -1,6 +1,6 @@
 # Sona
 
-Sona is a small, cross-platform audio capture and transcription helper. It records short audio snippets via FFmpeg, transcribes them with OpenAI Whisper, and lets you trigger everything via global hotkeys.
+Sona is a small, audio capture and transcription helper. It records short audio snippets via FFmpeg, transcribes them with OpenAI Whisper, and lets you trigger everything via global hotkeys.
 
 > **Note:** Sona is currently developed and tested only on **macOS**. Support for Windows and Linux is a work in progress.
 
