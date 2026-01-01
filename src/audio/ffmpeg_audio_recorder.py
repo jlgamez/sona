@@ -127,24 +127,28 @@ class FfmpegAudioRecorder(AudioRecorder):
                 expected output file is missing after the process is stopped.
         """
 
-        if self._process is None or self._current_temp_audio_file is None:
-            raise RuntimeError("stop() called but no recording is in progress")
+        if self._process is None:
+            return None
 
-        process = self._process
+        # gracefully terminate ffmpeg process
+        self._process.terminate()
+        try:
+            self._process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            self._process.kill()
+
         output_path = self._current_temp_audio_file
-
         self._process = None
         self._current_temp_audio_file = None
 
-        process.terminate()
-        try:
-            process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=5)
-
+        # check if recording was too short (file wasn't created)
         if not output_path.exists():
-            raise RuntimeError("Recording failed; output file is missing")
+            return None
+
+        # check if file was created but content was empty
+        if output_path.stat().st_size == 0:
+            output_path.unlink()
+            return None
 
         return output_path
 
