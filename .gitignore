@@ -132,4 +132,4 @@ venv.bak/
 # Ignore the ffmpeg binary in the root directory
 /ffmpeg
 
-/.github/instructions
+/.github/instructions/
