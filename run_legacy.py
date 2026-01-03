@@ -14,11 +14,12 @@ def bootstrap() -> None:
     if str(src_path) not in sys.path:
         sys.path.insert(0, str(src_path))
 
-    from src.server.app import create_flask_app
+    # ensure ffmpeg executable is on PATH
+    from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
+    get_bundled_ffmpeg(project_root)
 
-    flask_app = create_flask_app()
-    flask_app.run(debug=True)
-
+    from src.main import main
+    main()
 
 if __name__ == "__main__":
     bootstrap()
