@@ -21,7 +21,7 @@ Each commit message must consist of a **Header**, a **Body**, and an optional **
 ### A. The Header (Line 1)
 
 * **Format**: `type(scope): description`
-* **Type**: Use standard prefixes: `feat`, `fix`, `refactor`, `perf`, `docs`, `style`, `test`, `chore`.
+* **Type**: Use standard prefixes: `fix`, `refactor`, `perf`, `docs`, `style`, `test`, `chore`.
 * **Scope**: The specific module or file being changed (e.g., `whisper`, `hotkey`, `ui`).
 * **Description**: Max 50 characters, imperative mood ("Add feature" not "Added feature"), no period at the end.
 
@@ -42,7 +42,8 @@ Every bullet must start with a **Relevant Emoji** and **Bold Title**.
 ---
 
 ## 3. Best Practices
-
+* 
+* **Condensed info**: Aim at making the commit messages as short as possible.
 * **Atomic Commits**: One commit per logical change. If you fixed a bug AND added a feature, make TWO commits.
 * **Imperative Voice**: Always write the header as if you are giving a command.
 * **No "How" in Header**: The header is for "What." The Technical Change bullet is for "How."
