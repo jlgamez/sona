@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Final
 
-from src.server.model.model_constants import MODEL_INFO
+from src.server.models.repository.model_constants import MODEL_INFO
 
 
 # Whisper cache directory on disk

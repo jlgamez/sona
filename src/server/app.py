@@ -1,12 +1,17 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
+import json
 
 from .config.serivce.config_loader_service_impl import ConfigLoaderServiceImpl
+from .config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
+from .config.entity.user_config import UserConfig, ClipboardBehaviour
+from .models.service.get_available_models import available_models
 
 
 def create_flask_app() -> Flask:
     app = Flask(__name__)
 
     config_loader = ConfigLoaderServiceImpl()
+    config_saver = ConfigSaverServiceImpl()
 
     @app.route("/")
     def index():
@@ -16,6 +21,89 @@ def create_flask_app() -> Flask:
     def user_config():
         if request.method == "GET":
             return jsonify(config_loader.load_config())
+        elif request.method == "POST":
+            try:
+                data = request.get_json(force=True)
+                config = parse_submitted_config(data)
+                if config is None:
+                    return (
+                        jsonify({"success": False, "error": "Malformed request"}),
+                        400,
+                    )
+                success = config_saver.save_user_config(config)
+                if success:
+                    return jsonify({"success": True}), 200
+                else:
+                    return (
+                        jsonify({"success": False, "error": "Failed to save config"}),
+                        500,
+                    )
+            except Exception as e:
+                return jsonify({"success": False, "error": str(e)}), 400
+
         return None
+
+    @app.route("/api/available-models", methods=["GET"])
+    def get_available_models():
+        models = available_models()
+        # Convert dataclass objects to dicts for JSON serialization
+        data = [model.__dict__ for model in models]
+        return Response(
+            json.dumps(data, ensure_ascii=False),
+            content_type="application/json; charset=utf-8",
+        )
+
+    def parse_submitted_config(data: dict) -> UserConfig | None:
+        """
+        Try to construct a UserConfig from a raw dict.
+        Performs strict type checks and returns None if malformed.
+        """
+        try:
+            if not isinstance(data, dict):
+                return None
+            hot_key = data.get("hot_key", "ctrl_l")
+            if not isinstance(hot_key, str) or not hot_key.strip():
+                return None
+
+            # Optional booleans
+            intelligent_mode = data.get("intelligent_mode", False)
+            text_selection_awareness = data.get("text_selection_awareness", False)
+            if not isinstance(intelligent_mode, bool):
+                return None
+            if not isinstance(text_selection_awareness, bool):
+                return None
+
+            # Nested clipboard_behaviour
+            clipboard_behaviour = data.get("clipboard_behaviour", {})
+            clipboard_behaviour = (
+                {} if clipboard_behaviour is None else clipboard_behaviour
+            )
+            if not isinstance(clipboard_behaviour, dict):
+                return None
+            autonomous_pasting = clipboard_behaviour.get("autonomous_pasting", True)
+            keep_output_in_clipboard = clipboard_behaviour.get(
+                "keep_output_in_clipboard", True
+            )
+            if not isinstance(autonomous_pasting, bool):
+                return None
+            if not isinstance(keep_output_in_clipboard, bool):
+                return None
+            clipboard_behaviour = ClipboardBehaviour(
+                autonomous_pasting=autonomous_pasting,
+                keep_output_in_clipboard=keep_output_in_clipboard,
+            )
+            # current_model
+            current_model = data.get("current_model", "base.en")
+            if not isinstance(current_model, str):
+                return None
+            return UserConfig(
+                hot_key=hot_key,
+                intelligent_mode=intelligent_mode,
+                text_selection_awareness=text_selection_awareness,
+                clipboard_behaviour=clipboard_behaviour,
+                current_model=current_model,
+            )
+        except Exception:
+            return None
 
     return app

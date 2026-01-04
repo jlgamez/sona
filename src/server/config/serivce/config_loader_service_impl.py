@@ -7,10 +7,7 @@ from src.server.config.entity.user_config import (
     UserConfig,
 )
 from src.server.config.serivce.config_loading_service import ConfigLoadingService
-from src.server.config.serivce.get_available_models import available_models
-
-CONFIG_DIR = Path.home() / ".sona"
-CONFIG_PATH = CONFIG_DIR / "user_config.json"
+from src.server.config.serivce.constants import CONFIG_PATH
 
 
 class ConfigLoaderServiceImpl(ConfigLoadingService):
@@ -44,7 +41,6 @@ class ConfigLoaderServiceImpl(ConfigLoadingService):
             text_selection_awareness=bool(data.get("text_selection_awareness", True)),
             clipboard_behaviour=self._parse_clipboard_behaviour(data),
             current_model=data.get("current_model", "default"),
-            available_models=available_models(),
         )
 
     def _parse_clipboard_behaviour(self, data: Dict[str, Any]) -> ClipboardBehaviour:
@@ -59,4 +55,4 @@ class ConfigLoaderServiceImpl(ConfigLoadingService):
 
     def _default_config(self) -> UserConfig:
         """Return a default UserConfig with sensible defaults."""
-        return UserConfig(available_models=available_models())
+        return UserConfig()

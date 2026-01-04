@@ -1,8 +1,8 @@
 from typing import List
 
-from src.server.config.entity.user_config import TranscriptionModelInfo
-from src.server.model.local_model_service import is_model_in_system
-from src.server.model.model_constants import MODEL_INFO
+from src.server.models.service.local_model_service import is_model_in_system
+from src.server.models.repository.model_constants import MODEL_INFO
+from src.server.models.entity.transcription_model_info import TranscriptionModelInfo
 
 
 def available_models() -> List[TranscriptionModelInfo]:
