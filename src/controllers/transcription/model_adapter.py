@@ -42,7 +42,7 @@ class ModelAdapterImpl(ModelAdapter):
     _model_lock = threading.Lock()
     _device: Optional[str] = None
 
-    MODEL_NAME = "base"
+    MODEL_NAME = "turbo"
 
     def __init__(self, device_selector: Optional[DeviceSelector] = None):
         """Initialize the ModelAdapterImpl and load the Whisper model as a singleton.
