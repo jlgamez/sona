@@ -1,6 +1,5 @@
 import json
-from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from src.server.config.entity.user_config import (
     ClipboardBehaviour,
@@ -36,7 +35,7 @@ class ConfigLoaderServiceImpl(ConfigLoadingService):
     def _parse_config(self, data: Dict[str, Any]) -> UserConfig:
         """Parse a raw dict into a UserConfig entity."""
         return UserConfig(
-            hot_key=data.get("hot_key", "cmd+shift+space"),
+            hot_key=data.get("hot_key", "ctrl_l"),
             intelligent_mode=bool(data.get("intelligent_mode", True)),
             text_selection_awareness=bool(data.get("text_selection_awareness", True)),
             clipboard_behaviour=self._parse_clipboard_behaviour(data),

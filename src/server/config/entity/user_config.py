@@ -9,7 +9,7 @@ class ClipboardBehaviour:
 
 @dataclass
 class UserConfig:
-    hot_key: str = "ctrl left"
+    hot_key: str = "ctrl_l"
     intelligent_mode: bool = False
     text_selection_awareness: bool = False
     clipboard_behaviour: ClipboardBehaviour = field(default_factory=ClipboardBehaviour)

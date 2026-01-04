@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Callable, Optional
+from typing import Optional, Any, Set
 
-from pynput import keyboard
 from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
 
 from .hotkey_actions import HotKeyActions
 from .hotkey_controller import HotkeyController
+from .hotkey_mapping import HotkeyDefinition, map_hotkey_string
 
 
 class HotKeyControllerImpl(HotkeyController):
@@ -29,21 +29,28 @@ class HotKeyControllerImpl(HotkeyController):
         protocol.
     """
 
-    HOTKEY = keyboard.Key.ctrl_l
-
     def __init__(
         self,
         hot_key_actions: HotKeyActions,
+        hotkey_str: str = "ctrl_l",
     ) -> None:
         # Import locally to avoid hard dependency at module import time and to
         # allow this module to be imported in environments where ``pynput`` is
         # not available (e.g., some CI setups). Any ImportError will surface
         # when constructing the controller, which callers can handle.
-        from pynput import keyboard  # type: ignore
+        from pynput import keyboard as _keyboard  # type: ignore
 
-        self._keyboard = keyboard
-        self._hot_key : HotKeyActions = hot_key_actions
+        self._keyboard = _keyboard
+        self._hot_key: HotKeyActions = hot_key_actions
         self._listener: Optional[KeyboardListener] = None
+
+        # Map configured hotkey string to an internal definition. This keeps
+        # the controller decoupled from how we persist config.
+        self._hotkey_def: HotkeyDefinition = map_hotkey_string(
+            hotkey_str=hotkey_str, keyboard_module=self._keyboard
+        )
+        # Track currently pressed keys so we can support chords.
+        self._pressed_keys: Set[Any] = set()
 
     def start_listening(self) -> None:
         if self._listener is not None:
@@ -55,9 +62,22 @@ class HotKeyControllerImpl(HotkeyController):
         self._listener.start()
 
     def _on_press(self, key: Key | KeyCode) -> None:
-        if key == self.HOTKEY:
-            self._hot_key.on_press()
+        # Record key as pressed
+        self._pressed_keys.add(key)
+
+        if self._hotkey_def.type == "single":
+            # Single-key hotkey: trigger when this key is pressed.
+            if key in self._hotkey_def.keys:
+                self._hot_key.on_press()
+        else:
+            # Chord hotkey: trigger when all required keys are currently held.
+            if self._hotkey_def.keys.issubset(self._pressed_keys):
+                self._hot_key.on_press()
 
     def _on_release(self, key: Key | KeyCode) -> None:
-        if key == self.HOTKEY:
+        # Mark key as released
+        if key in self._pressed_keys:
+            self._pressed_keys.remove(key)
+
+        if key in self._hotkey_def.keys:
             self._hot_key.on_release()

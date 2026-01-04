@@ -15,21 +15,26 @@ from src.controllers.transcription.model_adapter import ModelAdapterImpl
 from src.controllers.transcription.transcription_result_handler import (
     TranscriptionResultHandlerImpl,
 )
+from src.server.config.serivce.config_loading_service import ConfigLoadingService
 from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
 
 
 class AppServices:
-    TEMP_AUDIO_DIRECTORY: Path = "src" / "audio" / "resources" / "temp_audio"
+    TEMP_AUDIO_DIRECTORY: Path = Path("src") / "audio" / "resources" / "temp_audio"
 
     _recorder: FfmpegAudioRecorder
     _transcription_orchestrator: BackgroundTranscriptionOrchestratorImpl
     _hot_key_controller: HotkeyController
     _hot_key_thread: Thread
+    _config_loader: ConfigLoadingService
 
     @classmethod
-    def initialise_services(cls, repo_root: Path):
+    def initialise_services(cls, repo_root: Path, config_loader: ConfigLoadingService):
         ffmpeg_executable = get_bundled_ffmpeg(repo_root)
         temp_audio_directory = repo_root / cls.TEMP_AUDIO_DIRECTORY
+
+        # Require explicit config loader injection
+        cls._config_loader = config_loader
 
         # audio recorder service
         cls._recorder = FfmpegAudioRecorder(
@@ -60,11 +65,17 @@ class AppServices:
         hot_key_actions = HotKeyActions(
             recorder=cls._recorder, orchestrator=cls._transcription_orchestrator
         )
-        return HotKeyControllerImpl(hot_key_actions=hot_key_actions)
+        # Use the injected config loader to obtain the configured hotkey.
+        user_config = cls._config_loader.load_config()
+        return HotKeyControllerImpl(
+            hot_key_actions=hot_key_actions,
+            hotkey_str=user_config.hot_key,
+        )
 
     @classmethod
     def _is_active_hot_key_thread(cls):
-        return cls._hot_key_thread is not None and cls._hot_key_thread.is_alive()
+        thread = getattr(cls, "_hot_key_thread", None)
+        return thread is not None and thread.is_alive()
 
     @classmethod
     def _start_hot_key_thread_with(cls, hot_key_controller: HotkeyController):
@@ -82,8 +93,10 @@ class AppServices:
 
     @classmethod
     def get_orchestrator(cls) -> BackgroundTranscriptionOrchestratorImpl:
-        assert cls._orchestrator is not None, "AppServices.init() must be called first"
-        return cls._orchestrator
+        assert (
+            cls._transcription_orchestrator is not None
+        ), "AppServices.init() must be called first"
+        return cls._transcription_orchestrator
 
     @classmethod
     def get_hotkey_controller(cls) -> Optional[HotkeyController]:
