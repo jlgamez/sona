@@ -67,7 +67,7 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
             max_workers: Maximum number of worker threads. Default is 1 to avoid GIL contention.
         """
         self._audio_loader = audio_loader or AudioValidatorImpl()
-        self._model_adapter = model_adapter or ModelAdapterImpl(DeviceSelectorImpl())
+        self._model_adapter = model_adapter
         self._cleanup_service = cleanup_service or CleanupServiceImpl()
         self._result_handler = result_handler or TranscriptionResultHandlerImpl()
 

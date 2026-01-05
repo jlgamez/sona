@@ -11,13 +11,13 @@ from src.controllers.transcription.background_transcription_orchestrator import 
     BackgroundTranscriptionOrchestratorImpl,
 )
 from src.controllers.transcription.cleanup_service import CleanupServiceImpl
+from src.controllers.transcription.device_selector import DeviceSelectorImpl
 from src.controllers.transcription.model_adapter import ModelAdapterImpl
 from src.controllers.transcription.transcription_result_handler import (
     TranscriptionResultHandlerImpl,
 )
 from src.server.config.serivce.config_loading_service import ConfigLoadingService
 from src.server.hot_key.service.hot_key_service import HotKeyService
-from src.server.models.service.local_model_service import LocalModelService
 from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
 
 
@@ -64,7 +64,10 @@ class AppServices:
     def _initialise_transcription_orchestrator(cls):
         return BackgroundTranscriptionOrchestratorImpl(
             AudioValidatorImpl(),
-            ModelAdapterImpl(),
+            ModelAdapterImpl(
+                model_name=cls._config_loader.load_config().current_model,
+                device_selector=DeviceSelectorImpl(),
+            ),
             CleanupServiceImpl(),
             TranscriptionResultHandlerImpl(),
         )

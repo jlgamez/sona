@@ -15,10 +15,14 @@ def create_flask_app() -> Flask:
     app = Flask(__name__)
 
     config_repository = ConfigRepositoryImpl()
-    config_loader = ConfigLoaderServiceImpl(config_repository)
-    config_saver = ConfigSaverServiceImpl(config_repository)
     model_service = LocalModelServiceImpl(ModelRepositoryImpl())
     hot_key_service = HotKeyServiceImpl(HotKeyRepositoryImpl())
+    config_defaults = {
+        "hot_key": hot_key_service.get_default_hot_key().name,
+        "model": model_service.get_default_model_name(),
+    }
+    config_loader = ConfigLoaderServiceImpl(config_repository, config_defaults)
+    config_saver = ConfigSaverServiceImpl(config_repository)
 
     @app.route("/")
     def index():
@@ -29,6 +33,7 @@ def create_flask_app() -> Flask:
         if request.method == "GET":
             return jsonify(config_loader.load_config())
         elif request.method == "POST":
+            # TODO: perform event driven shutdown of keyboard listening and restart with new config
             try:
                 data = request.get_json(force=True)
                 config = parse_submitted_config(data)

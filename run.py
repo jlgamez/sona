@@ -6,7 +6,7 @@ Ensures the project root is in sys.path and launches the main application logic.
 import sys
 from pathlib import Path
 
-from src.server.AppServices import AppServices
+from src.AppServices import AppServices
 from src.server.config.repository.config_repository import ConfigRepositoryImpl
 from src.server.config.serivce.config_loader_service_impl import ConfigLoaderServiceImpl
 from src.server.hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
@@ -36,6 +36,8 @@ def bootstrap() -> None:
 
     from src.server.app import create_flask_app
 
+    # TODO: pass to create_flask_app the services instantiated above
+    #  instead of reinstantiating within flask app
     flask_app = create_flask_app()
     flask_app.run(debug=True, use_reloader=False)
 

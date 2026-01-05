@@ -7,6 +7,7 @@ import whisper
 
 from .device_selector import DeviceSelector, DeviceSelectorImpl
 
+
 @runtime_checkable
 class ModelAdapter(Protocol):
     """ModelAdapter
@@ -42,15 +43,15 @@ class ModelAdapterImpl(ModelAdapter):
     _model_lock = threading.Lock()
     _device: Optional[str] = None
 
-    MODEL_NAME = "turbo"
-
-    def __init__(self, device_selector: Optional[DeviceSelector] = None):
+    def __init__(self, device_selector, model_name: str):
         """Initialize the ModelAdapterImpl and load the Whisper model as a singleton.
 
         Args:
             device_selector: Optional DeviceSelector for hardware detection. Defaults to DeviceSelectorImpl.
         """
         self._device_selector = device_selector or DeviceSelectorImpl()
+        self.model_name = model_name
+
         ModelAdapterImpl._device = self._device_selector.select_device()
         self._load_model()
 
@@ -62,7 +63,9 @@ class ModelAdapterImpl(ModelAdapter):
         """
         with self._model_lock:
             if ModelAdapterImpl._model is None:
-                ModelAdapterImpl._model = whisper.load_model(self.MODEL_NAME, device=ModelAdapterImpl._device)
+                ModelAdapterImpl._model = whisper.load_model(
+                    self.model_name, device=ModelAdapterImpl._device
+                )
             return ModelAdapterImpl._model
 
     def transcribe(self, audio: Path) -> Dict[str, Any]:
