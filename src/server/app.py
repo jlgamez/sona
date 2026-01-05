@@ -50,7 +50,7 @@ def create_flask_app() -> Flask:
 
         return None
 
-    @app.route("/api/available-models", methods=["GET"])
+    @app.route("/api/models", methods=["GET"])
     def get_available_models():
         models = model_service.get_available_models()
         # Convert dataclass objects to dicts for JSON serialization
