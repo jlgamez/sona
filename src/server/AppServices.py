@@ -16,8 +16,8 @@ from src.controllers.transcription.transcription_result_handler import (
     TranscriptionResultHandlerImpl,
 )
 from src.server.config.serivce.config_loading_service import ConfigLoadingService
-from src.server.hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
-from src.server.hot_key.service.hot_key_service import HotKeyService, HotKeyServiceImpl
+from src.server.hot_key.service.hot_key_service import HotKeyService
+from src.server.models.service.local_model_service import LocalModelService
 from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
 
 
