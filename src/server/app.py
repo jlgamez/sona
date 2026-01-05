@@ -5,15 +5,16 @@ from .config.repository.config_repository import ConfigRepositoryImpl
 from .config.serivce.config_loader_service_impl import ConfigLoaderServiceImpl
 from .config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
 from .config.entity.user_config import UserConfig, ClipboardBehaviour
-from .models.service.get_available_models import available_models
+from .models.repository.model_repository import ModelRepositoryImpl
+from .models.service.local_model_service import LocalModelServiceImpl
 
 
 def create_flask_app() -> Flask:
     app = Flask(__name__)
 
-    config_repository = ConfigRepositoryImpl()
-    config_loader = ConfigLoaderServiceImpl(config_repository)
+    config_loader = ConfigLoaderServiceImpl(ConfigRepositoryImpl())
     config_saver = ConfigSaverServiceImpl()
+    model_service = LocalModelServiceImpl(ModelRepositoryImpl())
 
     @app.route("/")
     def index():
@@ -47,7 +48,7 @@ def create_flask_app() -> Flask:
 
     @app.route("/api/available-models", methods=["GET"])
     def get_available_models():
-        models = available_models()
+        models = model_service.get_available_models()
         # Convert dataclass objects to dicts for JSON serialization
         data = [model.__dict__ for model in models]
         return Response(

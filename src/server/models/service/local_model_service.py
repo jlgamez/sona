@@ -1,18 +1,34 @@
-from pathlib import Path
-from typing import Final
+from typing import Protocol, List
 
-from src.server.models.repository.model_constants import MODEL_INFO
-
-
-# Whisper cache directory on disk
-WHISPER_CACHE_DIR: Final[Path] = Path.home() / ".cache" / "whisper"
+from src.server.models.entity.transcription_model_info import TranscriptionModelInfo
+from src.server.models.repository.model_repository import ModelRepository
 
 
-def is_model_in_system(model_name: str) -> bool:
-    "Check if a model is present in the local Whisper cache."
+class LocalModelService(Protocol):
 
-    model_info = MODEL_INFO.get(model_name)
-    if model_info is None:
-        return False
-    whisper_cache_filename = model_info[0]  # First element is the filename
-    return (WHISPER_CACHE_DIR / whisper_cache_filename).is_file()
+    def get_available_models(self) -> List[TranscriptionModelInfo]:
+        pass
+
+    def is_model_in_system(self, model_name: str) -> bool:
+        pass
+
+
+class LocalModelServiceImpl(LocalModelService):
+
+    def __init__(self, model_repository: ModelRepository):
+        self._model_repository = model_repository
+
+    def get_available_models(self) -> List[TranscriptionModelInfo]:
+        return [
+            TranscriptionModelInfo(
+                name=name,
+                english_only=info[1],
+                required_ram=info[2],
+                relative_speed=info[3],
+                in_system=self.is_model_in_system(name),
+            )
+            for name, info in self._model_repository.read_available_models().items()
+        ]
+
+    def is_model_in_system(self, model_name: str) -> bool:
+        return self._model_repository.is_model_in_system(model_name)

@@ -1,5 +1,8 @@
 # Model metadata: (filename, english_only, required_ram, relative_speed)
-MODEL_INFO = {
+from pathlib import Path
+from typing import Final
+
+MODELS_INFO = {
     # Tiny
     "tiny.en": ("tiny.en.pt", True, "~1 GB", "32×"),
     "tiny": ("tiny.pt", False, "~1 GB", "32×"),
@@ -19,3 +22,5 @@ MODEL_INFO = {
     # Turbo
     "large-v3-turbo": ("large-v3-turbo.pt", False, "~6 GB", "8×"),
 }
+
+WHISPER_CACHE_DIR: Final[Path] = Path.home() / ".cache" / "whisper"
