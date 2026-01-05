@@ -15,7 +15,7 @@ from src.controllers.transcription.model_adapter import ModelAdapterImpl
 from src.controllers.transcription.transcription_result_handler import (
     TranscriptionResultHandlerImpl,
 )
-from src.server.config.serivce.config_loading_service import ConfigLoadingService
+from src.server.config.serivce.config_load_service import ConfigLoadService
 from src.server.hot_key.service.hot_key_service import HotKeyService
 from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
 
@@ -26,7 +26,7 @@ class AppServices:
     def __init__(
         self,
         repo_root: Path,
-        config_loader: ConfigLoadingService,
+        config_loader: ConfigLoadService,
         hot_key_service: HotKeyService,
     ) -> None:
         """Initialize the application services container.

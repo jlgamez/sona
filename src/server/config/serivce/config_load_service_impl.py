@@ -5,10 +5,10 @@ from src.server.config.entity.user_config import (
     UserConfig,
 )
 from src.server.config.repository.config_repository import ConfigRepository
-from src.server.config.serivce.config_loading_service import ConfigLoadingService
+from src.server.config.serivce.config_load_service import ConfigLoadService
 
 
-class ConfigLoaderServiceImpl(ConfigLoadingService):
+class ConfigLoadServiceImpl(ConfigLoadService):
     def __init__(self, config_repository: ConfigRepository, defaults: dict):
         self._config_repository = config_repository
         self._defaults = defaults

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from src.AppServices import AppServices
 from src.server.config.repository.config_repository import ConfigRepositoryImpl
-from src.server.config.serivce.config_loader_service_impl import ConfigLoaderServiceImpl
+from src.server.config.serivce.config_load_service_impl import ConfigLoadServiceImpl
 from src.server.hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
 from src.server.hot_key.service.hot_key_service import HotKeyServiceImpl
 from src.server.models.repository.model_repository import ModelRepositoryImpl
@@ -29,7 +29,7 @@ def bootstrap() -> None:
         "model": model_service.get_default_model_name(),
     }
 
-    config_loader = ConfigLoaderServiceImpl(ConfigRepositoryImpl(), config_defaults)
+    config_loader = ConfigLoadServiceImpl(ConfigRepositoryImpl(), config_defaults)
 
     app_services = AppServices(project_root, config_loader, hot_key_service)
 
