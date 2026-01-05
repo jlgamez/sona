@@ -2,30 +2,22 @@ import json
 from dataclasses import asdict
 
 from src.server.config.entity.user_config import UserConfig
+from src.server.config.repository.config_repository import ConfigRepository
 from src.server.config.serivce.config_saving_service import ConfigSavingService
-from src.server.config.constants import CONFIG_PATH
-from src.server.user_config_service import CONFIG_DIR
 
 
 class ConfigSaverServiceImpl(ConfigSavingService):
     """Implementation for persisting UserConfig to JSON on disk."""
 
+    def __init__(self, config_repository: ConfigRepository):
+        self._config_repository = config_repository
+
     def save_user_config(self, config: UserConfig) -> bool:
         try:
-            # Ensure config directory exists
-            CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-
             # Convert dataclass to dict
             config_dict = asdict(config)
 
-            # Write to temp file first for atomic operation
-            temp_path = CONFIG_PATH.with_suffix(".tmp")
-            with temp_path.open("w", encoding="utf-8") as f:
-                json.dump(config_dict, f, indent=2, ensure_ascii=False)
-
-            # Atomic rename
-            temp_path.replace(CONFIG_PATH)
-            return True
+            return self._config_repository.write_user_config(config_dict)
 
         except Exception as e:
             # Log error in production; for now just return False

@@ -12,8 +12,9 @@ from .models.service.local_model_service import LocalModelServiceImpl
 def create_flask_app() -> Flask:
     app = Flask(__name__)
 
-    config_loader = ConfigLoaderServiceImpl(ConfigRepositoryImpl())
-    config_saver = ConfigSaverServiceImpl()
+    config_repository = ConfigRepositoryImpl()
+    config_loader = ConfigLoaderServiceImpl(config_repository)
+    config_saver = ConfigSaverServiceImpl(config_repository)
     model_service = LocalModelServiceImpl(ModelRepositoryImpl())
 
     @app.route("/")
