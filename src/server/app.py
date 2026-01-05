@@ -7,6 +7,8 @@ from .config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
 from .config.entity.user_config import UserConfig, ClipboardBehaviour
 from .models.repository.model_repository import ModelRepositoryImpl
 from .models.service.local_model_service import LocalModelServiceImpl
+from .hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
+from .hot_key.service.hot_key_service import HotKeyServiceImpl
 
 
 def create_flask_app() -> Flask:
@@ -16,6 +18,7 @@ def create_flask_app() -> Flask:
     config_loader = ConfigLoaderServiceImpl(config_repository)
     config_saver = ConfigSaverServiceImpl(config_repository)
     model_service = LocalModelServiceImpl(ModelRepositoryImpl())
+    hot_key_service = HotKeyServiceImpl(HotKeyRepositoryImpl())
 
     @app.route("/")
     def index():
@@ -52,6 +55,16 @@ def create_flask_app() -> Flask:
         models = model_service.get_available_models()
         # Convert dataclass objects to dicts for JSON serialization
         data = [model.__dict__ for model in models]
+        return Response(
+            json.dumps(data, ensure_ascii=False),
+            content_type="application/json; charset=utf-8",
+        )
+
+    @app.route("/api/hot-keys", methods=["GET"])
+    def get_available_hot_keys():
+        hot_keys = hot_key_service.list_hot_keys()
+        # Convert dataclass objects to dicts for JSON serialization
+        data = [hot_key.__dict__ for hot_key in hot_keys]
         return Response(
             json.dumps(data, ensure_ascii=False),
             content_type="application/json; charset=utf-8",
