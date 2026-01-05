@@ -1,38 +1,16 @@
 from __future__ import annotations
 
-"""Helpers for mapping configured hotkey strings to pynput keyboard objects.
-
-Responsibility:
-    Provide a small, isolated adapter that translates persisted string
-    representations of hotkeys into `pynput.keyboard` key / chord
-    definitions that the hotkey controller can use.
-
-Interface:
-    * map_hotkey_string(hotkey_str: str, keyboard_module) -> HotkeyDefinition
-
-Currently supported values (by config `UserConfig.hot_key`):
-    * "ctrl_l"   - left control key
-    * "ctrl left" - legacy alias for left control; normalized to "ctrl_l"
-    * "cmd+ctrl" - command + control chord (either side where available)
-
-Unknown values gracefully fall back to the default single-key ctrl hotkey.
-"""
+"""Helpers for mapping configured hotkey strings to pynput keyboard objects."""
 
 from dataclasses import dataclass
-from typing import Iterable, Set, Any
+from typing import Set, Any
 
 
 @dataclass(frozen=True)
 class HotkeyDefinition:
-    """Value object describing a configured hotkey.
+    """Describes a hotkey: type ('single' or 'chord') and set of keys."""
 
-    Attributes:
-        type: "single" for a single key, "chord" for a simultaneous key combo.
-        keys: For "single", a singleton set containing the trigger key.
-              For "chord", a set containing all keys that must be held.
-    """
-
-    type: str  # "single" | "chord"
+    type: str
     keys: Set[Any]
 
 
@@ -40,40 +18,20 @@ _DEFAULT_HOTKEY_STRING = "ctrl_l"
 
 
 def _ctrl_hotkey(keyboard_module: Any) -> HotkeyDefinition:
+    """Single-key left control (or ctrl fallback)."""
     key = getattr(keyboard_module.Key, "ctrl_l", getattr(keyboard_module.Key, "ctrl"))
     return HotkeyDefinition(type="single", keys={key})
 
 
 def _cmd_ctrl_chord(keyboard_module: Any) -> HotkeyDefinition:
-    """Define a cmd+ctrl chord.
-
-    On macOS, `pynput` exposes `Key.cmd` / `Key.cmd_l` / `Key.cmd_r` depending
-    on the platform / version. To be robust, we include any attributes that
-    exist as valid "cmd" keys so that holding either side still works.
-    """
-
-    key_candidates: Iterable[str] = ("cmd", "cmd_l", "cmd_r")
-    cmd_keys: Set[Any] = set()
-    for attr in key_candidates:
-        if hasattr(keyboard_module.Key, attr):
-            cmd_keys.add(getattr(keyboard_module.Key, attr))
-
-    # Fallback: if for some reason we couldn't find a cmd key, just
-    # fall back to ctrl-only single hotkey behaviour.
-    if not cmd_keys:
-        return _ctrl_hotkey(keyboard_module)
-
-    all_keys: Set[Any] = set(cmd_keys)
-    ctrl_key = getattr(
-        keyboard_module.Key, "ctrl_l", getattr(keyboard_module.Key, "ctrl")
-    )
-    all_keys.add(ctrl_key)
-
-    return HotkeyDefinition(type="chord", keys=all_keys)
+    """Cmd+Ctrl chord using one cmd and one ctrl key."""
+    cmd_key = keyboard_module.Key.cmd
+    ctrl_key = getattr(keyboard_module.Key, "ctrl_l", keyboard_module.Key.ctrl)
+    return HotkeyDefinition(type="chord", keys={cmd_key, ctrl_key})
 
 
 def map_hotkey_string(hotkey_str: str, keyboard_module: Any) -> HotkeyDefinition:
-    "Map a persisted hotkey string to a `HotkeyDefinition"
+    """Map config string to HotkeyDefinition."""
 
     normalized = (hotkey_str or _DEFAULT_HOTKEY_STRING).strip().lower()
 
@@ -83,5 +41,4 @@ def map_hotkey_string(hotkey_str: str, keyboard_module: Any) -> HotkeyDefinition
     if normalized == "cmd+ctrl":
         return _cmd_ctrl_chord(keyboard_module)
 
-    # Unknown value: fallback to the default
     return _ctrl_hotkey(keyboard_module)
