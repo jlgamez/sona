@@ -1,10 +1,9 @@
 import json
-from pathlib import Path
 from dataclasses import asdict
 
 from src.server.config.entity.user_config import UserConfig
 from src.server.config.serivce.config_saving_service import ConfigSavingService
-from src.server.config.serivce.constants import CONFIG_PATH
+from src.server.config.constants import CONFIG_PATH
 from src.server.user_config_service import CONFIG_DIR
 
 
