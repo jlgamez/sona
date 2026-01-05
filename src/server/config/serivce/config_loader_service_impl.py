@@ -9,8 +9,9 @@ from src.server.config.serivce.config_loading_service import ConfigLoadingServic
 
 
 class ConfigLoaderServiceImpl(ConfigLoadingService):
-    def __init__(self, config_repository: ConfigRepository):
+    def __init__(self, config_repository: ConfigRepository, defaults: dict):
         self._config_repository = config_repository
+        self._defaults = defaults
 
     def load_config(self) -> UserConfig:
         """Load config from disk or return defaults if missing/invalid."""
@@ -42,4 +43,6 @@ class ConfigLoaderServiceImpl(ConfigLoadingService):
 
     def _default_config(self) -> UserConfig:
         """Return a default UserConfig with sensible defaults."""
-        return UserConfig()
+        return UserConfig(
+            hot_key=self._defaults["hot_key"], current_model=self._defaults["model"]
+        )
