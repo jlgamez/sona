@@ -25,3 +25,6 @@ class HotkeyController(Protocol):
         configuration, such as specifying the hotkey combination and ensuring
         that the listener runs on a background thread.
         """
+
+    def stop_listening(self) -> None:
+        """Stop the global hotkey listener if it is currently running."""

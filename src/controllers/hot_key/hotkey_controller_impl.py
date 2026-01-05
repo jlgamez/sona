@@ -61,6 +61,12 @@ class HotKeyControllerImpl(HotkeyController):
         )
         self._listener.start()
 
+    def stop_listening(self) -> None:
+        """Stop the global hotkey listener if it is currently running."""
+        if self._listener is not None:
+            self._listener.stop()
+            self._listener = None
+
     def _on_press(self, key: Key | KeyCode) -> None:
         # Record key as pressed
         self._pressed_keys.add(key)
