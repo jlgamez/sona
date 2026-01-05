@@ -1,6 +1,4 @@
 from pathlib import Path
-from threading import Thread
-from typing import Optional
 
 from src.audio.audio_validator import AudioValidatorImpl
 from src.audio.audio_recorder_impl import AudioRecorderImpl
@@ -8,6 +6,7 @@ from src.controllers.hot_key.hotkey_actions import HotKeyActions
 from src.controllers.hot_key.hotkey_controller import HotkeyController
 from src.controllers.hot_key.hotkey_controller_impl import HotKeyControllerImpl
 from src.controllers.transcription.background_transcription_orchestrator import (
+    BackgroundTranscriptionOrchestrator,
     BackgroundTranscriptionOrchestratorImpl,
 )
 from src.controllers.transcription.cleanup_service import CleanupServiceImpl
@@ -24,107 +23,71 @@ from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
 class AppServices:
     TEMP_AUDIO_DIRECTORY: Path = Path("src") / "audio" / "resources" / "temp_audio"
 
-    _recorder: AudioRecorderImpl
-    _transcription_orchestrator: BackgroundTranscriptionOrchestratorImpl
-    _hot_key_controller: HotkeyController
-    _hot_key_thread: Thread
-    _config_loader: ConfigLoadingService
-    _hot_key_service: HotKeyService
-
-    @classmethod
-    def initialise_services(
-        cls,
+    def __init__(
+        self,
         repo_root: Path,
         config_loader: ConfigLoadingService,
         hot_key_service: HotKeyService,
-    ):
+    ) -> None:
+        """Initialize the application services container.
+
+        Args:
+            repo_root: Root directory of the project
+            config_loader: Service for loading user configuration
+            hot_key_service: Service for managing hotkey definitions
+        """
         ffmpeg_executable = get_bundled_ffmpeg(repo_root)
-        temp_audio_directory = repo_root / cls.TEMP_AUDIO_DIRECTORY
+        temp_audio_directory = repo_root / self.TEMP_AUDIO_DIRECTORY
 
-        # Require explicit config loader injection
-        cls._config_loader = config_loader
-        cls._hot_key_service = hot_key_service
-
-        # audio recorder service
-        cls._recorder = AudioRecorderImpl(
-            output_dir=temp_audio_directory, ffmpeg_executable=str(ffmpeg_executable)
+        self._config_loader = config_loader
+        self._hot_key_service = hot_key_service
+        self._recorder = AudioRecorderImpl(
+            output_dir=temp_audio_directory,
+            ffmpeg_executable=str(ffmpeg_executable),
         )
 
-        # transcription orchestrator service
-        cls._transcription_orchestrator = cls._initialise_transcription_orchestrator()
-
-        # hotkey controller service
-        cls._hot_key_controller = cls._initialise_hot_key_controller()
-
-        # start a hotkey listener thread
-        if not cls._is_active_hot_key_thread():
-            cls._start_hot_key_thread_with(cls._hot_key_controller)
-
-    @classmethod
-    def _initialise_transcription_orchestrator(cls):
+    def create_transcription_orchestrator(
+        self,
+    ) -> BackgroundTranscriptionOrchestratorImpl:
+        """Create a new transcription orchestrator with current configuration."""
         return BackgroundTranscriptionOrchestratorImpl(
             AudioValidatorImpl(),
             ModelAdapterImpl(
-                model_name=cls._config_loader.load_config().current_model,
+                model_name=self._config_loader.load_config().current_model,
                 device_selector=DeviceSelectorImpl(),
             ),
             CleanupServiceImpl(),
             TranscriptionResultHandlerImpl(),
         )
 
-    @classmethod
-    def _initialise_hot_key_controller(cls):
+    def create_hot_key_controller(
+        self, orchestrator: BackgroundTranscriptionOrchestrator
+    ) -> HotkeyController:
+        """Create a new hotkey controller with the given orchestrator."""
         hot_key_actions = HotKeyActions(
-            recorder=cls._recorder, orchestrator=cls._transcription_orchestrator
+            recorder=self._recorder, orchestrator=orchestrator
         )
-        # Use the injected config loader to obtain the configured hotkey.
-        user_config = cls._config_loader.load_config()
-        resolved_hot_key = cls._resolve_hot_key_string(user_config.hot_key)
+        user_config = self._config_loader.load_config()
+        resolved_hot_key = self._resolve_hot_key_string(user_config.hot_key)
         return HotKeyControllerImpl(
             hot_key_actions=hot_key_actions,
             hotkey_str=resolved_hot_key,
         )
 
-    @classmethod
-    def _resolve_hot_key_string(cls, configured_hot_key: str | None) -> str:
+    def _resolve_hot_key_string(self, configured_hot_key: str | None) -> str:
+        """Resolve a hotkey string to a valid hotkey definition."""
         configured_key = (configured_hot_key or "").strip().lower()
-        available_hot_keys = cls._hot_key_service.list_hot_keys()
+        available_hot_keys = self._hot_key_service.list_hot_keys()
         for option in available_hot_keys:
             if option.name.lower() == configured_key:
                 return option.name
-        default_option = cls._hot_key_service.get_default_hot_key()
+        default_option = self._hot_key_service.get_default_hot_key()
         if default_option is not None:
             return default_option.name
         if available_hot_keys:
             return available_hot_keys[0].name
         return "ctrl_l"
 
-    @classmethod
-    def _is_active_hot_key_thread(cls):
-        thread = getattr(cls, "_hot_key_thread", None)
-        return thread is not None and thread.is_alive()
-
-    @classmethod
-    def _start_hot_key_thread_with(cls, hot_key_controller: HotkeyController):
-        cls._hot_key_thread = Thread(
-            target=hot_key_controller.start_listening,
-            name="HotkeyListenerThread",
-            daemon=True,
-        )
-        cls._hot_key_thread.start()
-
-    @classmethod
-    def get_recorder(cls) -> AudioRecorderImpl:
-        assert cls._recorder is not None, "AppServices.init() must be called first"
-        return cls._recorder
-
-    @classmethod
-    def get_orchestrator(cls) -> BackgroundTranscriptionOrchestratorImpl:
-        assert (
-            cls._transcription_orchestrator is not None
-        ), "AppServices.init() must be called first"
-        return cls._transcription_orchestrator
-
-    @classmethod
-    def get_hotkey_controller(cls) -> Optional[HotkeyController]:
-        return cls._hot_key_controller
+    def get_recorder(self) -> AudioRecorderImpl:
+        """Get the audio recorder instance."""
+        return self._recorder

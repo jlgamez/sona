@@ -31,13 +31,15 @@ def bootstrap() -> None:
 
     config_loader = ConfigLoaderServiceImpl(ConfigRepositoryImpl(), config_defaults)
 
-    app_services = AppServices()
-    app_services.initialise_services(project_root, config_loader, hot_key_service)
+    app_services = AppServices(project_root, config_loader, hot_key_service)
 
+    from src.runtime.runtime_manager import AudioTranscriptionRuntimeManager
     from src.server.app import create_flask_app
 
-    # TODO: pass to create_flask_app the services instantiated above
-    #  instead of reinstantiating within flask app
+    audio_transcription_runtime = AudioTranscriptionRuntimeManager(app_services)
+    audio_transcription_runtime.start()
+
+    # TODO: pass runtime_manager and services to create_flask_app for config reload
     flask_app = create_flask_app()
     flask_app.run(debug=True, use_reloader=False)
 
