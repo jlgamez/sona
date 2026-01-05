@@ -12,6 +12,8 @@ import ApplicationServices
 from src.server.AppServices import AppServices
 from src.server.config.repository.config_repository import ConfigRepositoryImpl
 from src.server.config.serivce.config_loader_service_impl import ConfigLoaderServiceImpl
+from src.server.hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
+from src.server.hot_key.service.hot_key_service import HotKeyServiceImpl
 
 
 def bootstrap() -> None:
@@ -21,11 +23,11 @@ def bootstrap() -> None:
     if str(src_path) not in sys.path:
         sys.path.insert(0, str(src_path))
 
-    config_repository = ConfigRepositoryImpl()
-    config_loader = ConfigLoaderServiceImpl(config_repository)
+    config_loader = ConfigLoaderServiceImpl(ConfigRepositoryImpl())
+    hot_key_service = HotKeyServiceImpl(HotKeyRepositoryImpl())
 
     app_services = AppServices()
-    app_services.initialise_services(project_root, config_loader)
+    app_services.initialise_services(project_root, config_loader, hot_key_service)
 
     from src.server.app import create_flask_app
 

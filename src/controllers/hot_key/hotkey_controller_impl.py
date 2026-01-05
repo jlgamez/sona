@@ -32,7 +32,7 @@ class HotKeyControllerImpl(HotkeyController):
     def __init__(
         self,
         hot_key_actions: HotKeyActions,
-        hotkey_str: str = "ctrl_l",
+        hotkey_str,
     ) -> None:
         # Import locally to avoid hard dependency at module import time and to
         # allow this module to be imported in environments where ``pynput`` is
