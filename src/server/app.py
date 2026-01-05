@@ -1,28 +1,35 @@
+import dataclasses
+
 from flask import Flask, jsonify, request, Response
 import json
 
 from .config.repository.config_repository import ConfigRepositoryImpl
-from .config.serivce.config_loader_service_impl import ConfigLoaderServiceImpl
+from .config.serivce.config_load_service import ConfigLoadService
+from .config.serivce.config_load_service_impl import ConfigLoadServiceImpl
 from .config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
 from .config.entity.user_config import UserConfig, ClipboardBehaviour
+from .config.serivce.config_saving_service import ConfigSavingService
 from .models.repository.model_repository import ModelRepositoryImpl
-from .models.service.local_model_service import LocalModelServiceImpl
+from .models.service.local_model_service import LocalModelServiceImpl, LocalModelService
 from .hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
-from .hot_key.service.hot_key_service import HotKeyServiceImpl
+from .hot_key.service.hot_key_service import HotKeyServiceImpl, HotKeyService
 
 
-def create_flask_app() -> Flask:
+@dataclasses.dataclass
+class FlaskServices:
+    model_service: LocalModelService
+    hot_key_service: HotKeyService
+    config_loader: ConfigLoadService
+    config_saver: ConfigSavingService
+
+
+def create_flask_app_with(flask_services: FlaskServices) -> Flask:
     app = Flask(__name__)
 
-    config_repository = ConfigRepositoryImpl()
-    model_service = LocalModelServiceImpl(ModelRepositoryImpl())
-    hot_key_service = HotKeyServiceImpl(HotKeyRepositoryImpl())
-    config_defaults = {
-        "hot_key": hot_key_service.get_default_hot_key().name,
-        "model": model_service.get_default_model_name(),
-    }
-    config_loader = ConfigLoaderServiceImpl(config_repository, config_defaults)
-    config_saver = ConfigSaverServiceImpl(config_repository)
+    model_service = flask_services.model_service
+    hot_key_service = flask_services.hot_key_service
+    config_loader = flask_services.config_loader
+    config_saver = flask_services.config_saver
 
     @app.route("/")
     def index():

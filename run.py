@@ -7,12 +7,16 @@ import sys
 from pathlib import Path
 
 from src.AppServices import AppServices
+from src.server.app import FlaskServices
 from src.server.config.repository.config_repository import ConfigRepositoryImpl
 from src.server.config.serivce.config_load_service_impl import ConfigLoadServiceImpl
+from src.server.config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
 from src.server.hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
 from src.server.hot_key.service.hot_key_service import HotKeyServiceImpl
 from src.server.models.repository.model_repository import ModelRepositoryImpl
 from src.server.models.service.local_model_service import LocalModelServiceImpl
+from src.runtime.runtime_manager import AudioTranscriptionRuntimeManager
+from src.server.app import create_flask_app_with
 
 
 def bootstrap() -> None:
@@ -28,19 +32,23 @@ def bootstrap() -> None:
         "hot_key": hot_key_service.get_default_hot_key().name,
         "model": model_service.get_default_model_name(),
     }
-
-    config_loader = ConfigLoadServiceImpl(ConfigRepositoryImpl(), config_defaults)
+    config_repository = ConfigRepositoryImpl()
+    config_loader = ConfigLoadServiceImpl(config_repository, config_defaults)
+    config_saver = ConfigSaverServiceImpl(config_repository)
 
     app_services = AppServices(project_root, config_loader, hot_key_service)
-
-    from src.runtime.runtime_manager import AudioTranscriptionRuntimeManager
-    from src.server.app import create_flask_app
 
     audio_transcription_runtime = AudioTranscriptionRuntimeManager(app_services)
     audio_transcription_runtime.start()
 
-    # TODO: pass runtime_manager and services to create_flask_app for config reload
-    flask_app = create_flask_app()
+    flask_app = create_flask_app_with(
+        FlaskServices(
+            model_service,
+            hot_key_service,
+            config_loader,
+            config_saver,
+        )
+    )
     flask_app.run(debug=True, use_reloader=False)
 
 
