@@ -1,6 +1,10 @@
-from typing import Protocol
+from typing import Protocol, Tuple
 
-from src.server.models.repository.model_constants import MODELS_INFO, WHISPER_CACHE_DIR
+from src.server.models.repository.model_constants import (
+    MODELS_INFO,
+    WHISPER_CACHE_DIR,
+    DEFAULT_MODEL,
+)
 
 
 class ModelRepository(Protocol):
@@ -9,6 +13,9 @@ class ModelRepository(Protocol):
         pass
 
     def is_model_in_system(self, model_name: str) -> bool:
+        pass
+
+    def get_default_model_info(self) -> Tuple[str, Tuple[str, bool, str, str]]:
         pass
 
 
@@ -24,3 +31,6 @@ class ModelRepositoryImpl(ModelRepository):
             return False
         whisper_cache_filename = model_info[0]  # First element is the filename
         return (WHISPER_CACHE_DIR / whisper_cache_filename).is_file()
+
+    def get_default_model_info(self) -> Tuple[str, Tuple[str, bool, str, str]]:
+        return DEFAULT_MODEL

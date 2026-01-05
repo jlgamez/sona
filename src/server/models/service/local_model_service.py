@@ -12,6 +12,9 @@ class LocalModelService(Protocol):
     def is_model_in_system(self, model_name: str) -> bool:
         pass
 
+    def get_default_model_name(self) -> str:
+        pass
+
 
 class LocalModelServiceImpl(LocalModelService):
 
@@ -32,3 +35,6 @@ class LocalModelServiceImpl(LocalModelService):
 
     def is_model_in_system(self, model_name: str) -> bool:
         return self._model_repository.is_model_in_system(model_name)
+
+    def get_default_model_name(self) -> str:
+        return self._model_repository.get_default_model_info()[0]

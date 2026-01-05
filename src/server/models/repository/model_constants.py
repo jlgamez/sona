@@ -24,3 +24,5 @@ MODELS_INFO = {
 }
 
 WHISPER_CACHE_DIR: Final[Path] = Path.home() / ".cache" / "whisper"
+
+DEFAULT_MODEL = ("base.en", MODELS_INFO["base.en"])

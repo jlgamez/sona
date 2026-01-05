@@ -78,7 +78,7 @@ def create_flask_app() -> Flask:
         try:
             if not isinstance(data, dict):
                 return None
-            hot_key = data.get("hot_key", "ctrl_l")
+            hot_key = data.get("hot_key", hot_key_service.get_default_hot_key().name)
             if not isinstance(hot_key, str) or not hot_key.strip():
                 return None
 
@@ -110,7 +110,9 @@ def create_flask_app() -> Flask:
                 keep_output_in_clipboard=keep_output_in_clipboard,
             )
             # current_model
-            current_model = data.get("current_model", "base.en")
+            current_model = data.get(
+                "current_model", model_service.get_default_model_name()
+            )
             if not isinstance(current_model, str):
                 return None
             return UserConfig(
