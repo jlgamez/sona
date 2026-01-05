@@ -5,10 +5,13 @@ from typing import Protocol, runtime_checkable
 from concurrent.futures import ThreadPoolExecutor
 import atexit
 
-from src.audio.audio_loader import AudioValidator, AudioValidatorImpl
+from src.audio.audio_validator import AudioValidator, AudioValidatorImpl
 from .model_adapter import ModelAdapter, ModelAdapterImpl
 from .cleanup_service import CleanupService, CleanupServiceImpl
-from .transcription_result_handler import TranscriptionResultHandler, TranscriptionResultHandlerImpl
+from .transcription_result_handler import (
+    TranscriptionResultHandler,
+    TranscriptionResultHandlerImpl,
+)
 from .device_selector import DeviceSelectorImpl
 
 
@@ -52,7 +55,7 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         model_adapter: ModelAdapter,
         cleanup_service: CleanupService,
         result_handler: TranscriptionResultHandler,
-        max_workers: int = 1
+        max_workers: int = 1,
     ):
         """Initialize the orchestrator with all required components.
 
@@ -69,7 +72,9 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         self._result_handler = result_handler or TranscriptionResultHandlerImpl()
 
         # Use single worker to avoid GIL contention and model thread-safety issues
-        self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="transcription")
+        self._executor = ThreadPoolExecutor(
+            max_workers=max_workers, thread_name_prefix="transcription"
+        )
 
         # Register shutdown hook to ensure cleanup on app exit
         atexit.register(self.shutdown)
