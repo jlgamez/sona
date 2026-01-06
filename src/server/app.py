@@ -44,7 +44,6 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
         if request.method == "GET":
             return jsonify(config_loader.load_config())
         elif request.method == "POST":
-            # TODO: perform event driven shutdown of keyboard listening and restart with new config
             try:
                 data = request.get_json(force=True)
                 config = parse_submitted_config(data)
@@ -128,6 +127,79 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
             )
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
+
+    @app.route("/api/model-download-state", methods=["GET"])
+    def get_model_download_state():
+        model_name = request.args.get("name")
+        if not model_name or not isinstance(model_name, str) or not model_name.strip():
+            return jsonify({"success": False, "error": "Missing or invalid name"}), 400
+
+        try:
+            if model_service.is_downloading(model_name):
+                return (
+                    jsonify(
+                        {
+                            "success": True,
+                            "state": "downloading",
+                            "model_name": model_name,
+                        }
+                    ),
+                    200,
+                )
+
+            if model_service.is_model_in_system(model_name):
+                return (
+                    jsonify(
+                        {
+                            "success": True,
+                            "state": "completed",
+                            "model_name": model_name,
+                        }
+                    ),
+                    200,
+                )
+
+            return (
+                jsonify(
+                    {"success": True, "state": "not_started", "model_name": model_name}
+                ),
+                200,
+            )
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+
+    @app.route("/api/delete-model", methods=["POST"])
+    def delete_model():
+        model_name = request.args.get("name")
+        if not model_name or not isinstance(model_name, str) or not model_name.strip():
+            return jsonify({"success": False, "error": "Missing or invalid name"}), 400
+        try:
+            deleted = model_service.delete_model(model_name)
+            if deleted:
+                # ensure reset the default model if the deleted one is the model currently in use
+                set_default_model_if_current_was_deleted(model_name)
+                return jsonify({"success": True, "model_name": model_name}), 200
+            else:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "error": "Model not found or could not be deleted",
+                        }
+                    ),
+                    404,
+                )
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
+
+    def set_default_model_if_current_was_deleted(model_name: str) -> None:
+        config = config_loader.load_config()
+        if config.current_model == model_name:
+            default_model = model_service.get_default_model_name()
+            config.current_model = default_model
+            config_saver.save_user_config(config)
+            # trigger event to restart transcriber with default model
+            messenger.emit(Event.CONFIG_SAVED)
 
     def parse_submitted_config(data: dict) -> UserConfig | None:
         """

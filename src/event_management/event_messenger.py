@@ -19,9 +19,9 @@ class EventMessenger:
     def subscribe(self, event: Event, handler: Callable):
         self._handlers[event].append(handler)
 
-    def emit(self, event: Event):
+    def emit(self, event: Event, data=None):
         for handler in self._handlers[event]:
             try:
-                handler()
+                handler(data) if data else handler()
             except Exception as e:
                 print(f"[EventMessenger] Error in event {event.name} handler: {e}")
