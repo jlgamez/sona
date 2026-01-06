@@ -2,16 +2,16 @@ from pathlib import Path
 
 from src.audio.audio_validator import AudioValidatorImpl
 from src.audio.audio_recorder_impl import AudioRecorderImpl
-from src.controllers.hot_key.hotkey_actions import HotKeyActions
-from src.controllers.hot_key.hotkey_controller import HotkeyController
-from src.controllers.hot_key.hotkey_controller_impl import HotKeyControllerImpl
-from src.controllers.transcription.ai_transcriber import AITranscriberImpl
-from src.controllers.transcription.background_transcription_orchestrator import (
+from src.core.hot_key.hotkey_actions import HotKeyActions
+from src.core.hot_key.hotkey_controller import HotkeyController
+from src.core.hot_key.hotkey_controller_impl import HotKeyControllerImpl
+from src.core.transcription.ai_transcriber import AITranscriberImpl
+from src.core.transcription.background_transcription_orchestrator import (
     BackgroundTranscriptionOrchestrator,
     BackgroundTranscriptionOrchestratorImpl,
 )
-from src.controllers.transcription.cleanup_service import CleanupServiceImpl
-from src.controllers.transcription.transcription_result_handler import (
+from src.core.transcription.cleanup_service import CleanupServiceImpl
+from src.core.transcription.transcription_result_handler import (
     TranscriptionResultHandlerImpl,
 )
 from src.server.config.serivce.config_load_service import ConfigLoadService

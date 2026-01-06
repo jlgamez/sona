@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from src.audio.audio_recorder import AudioRecorder
-from src.controllers.transcription.background_transcription_orchestrator import (
+from src.core.transcription.background_transcription_orchestrator import (
     BackgroundTranscriptionOrchestrator,
 )
 
@@ -28,7 +28,7 @@ class HotKeyActions:
     def __init__(
         self,
         recorder: AudioRecorder,
-        orchestrator:BackgroundTranscriptionOrchestrator,
+        orchestrator: BackgroundTranscriptionOrchestrator,
     ) -> None:
         self._recorder = recorder
         self._transcription_orchestrator = orchestrator
