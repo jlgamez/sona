@@ -5,13 +5,12 @@ from src.audio.audio_recorder_impl import AudioRecorderImpl
 from src.controllers.hot_key.hotkey_actions import HotKeyActions
 from src.controllers.hot_key.hotkey_controller import HotkeyController
 from src.controllers.hot_key.hotkey_controller_impl import HotKeyControllerImpl
+from src.controllers.transcription.ai_transcriber import AITranscriberImpl
 from src.controllers.transcription.background_transcription_orchestrator import (
     BackgroundTranscriptionOrchestrator,
     BackgroundTranscriptionOrchestratorImpl,
 )
 from src.controllers.transcription.cleanup_service import CleanupServiceImpl
-from src.controllers.transcription.device_selector import DeviceSelectorImpl
-from src.controllers.transcription.model_adapter import ModelAdapterImpl
 from src.controllers.transcription.transcription_result_handler import (
     TranscriptionResultHandlerImpl,
 )
@@ -52,9 +51,8 @@ class AppServices:
         """Create a new transcription orchestrator with current configuration."""
         return BackgroundTranscriptionOrchestratorImpl(
             AudioValidatorImpl(),
-            ModelAdapterImpl(
+            AITranscriberImpl(
                 model_name=self._config_loader.load_config().current_model,
-                device_selector=DeviceSelectorImpl(),
             ),
             CleanupServiceImpl(),
             TranscriptionResultHandlerImpl(),

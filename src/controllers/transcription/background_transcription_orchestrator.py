@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 
 from src.audio.audio_validator import AudioValidator, AudioValidatorImpl
-from .model_adapter import ModelAdapter
+from .ai_transcriber import AITranscriber
 from .cleanup_service import CleanupService, CleanupServiceImpl
 from .transcription_result_handler import (
     TranscriptionResultHandler,
@@ -51,7 +51,7 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
     def __init__(
         self,
         audio_loader: AudioValidator,
-        model_adapter: ModelAdapter,
+        ai_transcriber: AITranscriber,
         cleanup_service: CleanupService,
         result_handler: TranscriptionResultHandler,
         max_workers: int = 1,
@@ -60,13 +60,13 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
 
         Args:
             audio_loader: Component to validate audio files. Defaults to AudioValidatorImpl.
-            model_adapter: Component to transcribe audio. Defaults to ModelAdapterImpl.
+            ai_transcriber: Component to transcribe audio. Defaults to ModelAdapterImpl.
             cleanup_service: Component to clean up resources. Defaults to CleanupServiceImpl.
             result_handler: Component to handle results. Defaults to TranscriptionResultHandlerImpl.
             max_workers: Maximum number of worker threads. Default is 1 to avoid GIL contention.
         """
         self._audio_loader = audio_loader or AudioValidatorImpl()
-        self._model_adapter = model_adapter
+        self._ai_transcriber = ai_transcriber
         self._cleanup_service = cleanup_service or CleanupServiceImpl()
         self._result_handler = result_handler or TranscriptionResultHandlerImpl()
 
@@ -97,7 +97,7 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
             self._audio_loader.validate(path)
 
             # Step 2: Transcribe using the file Path (Whisper reads from disk)
-            result = self._model_adapter.transcribe(path)
+            result = self._ai_transcriber.transcribe(path)
 
             # Step 3: Extract text from result
             text = result.get("text", "").strip()
@@ -123,7 +123,7 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         """
         try:
             self._executor.shutdown(wait=True, cancel_futures=False)
-            self._model_adapter.teardown_current_model()
+            self._ai_transcriber.teardown()
 
             print("[DEBUG] BackgroundTranscriptionOrchestrator shutdown complete")
         except Exception as e:
