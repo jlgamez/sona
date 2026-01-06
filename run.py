@@ -17,7 +17,7 @@ from src.server.hot_key.repository.hot_key_repository import HotKeyRepositoryImp
 from src.server.hot_key.service.hot_key_service import HotKeyServiceImpl
 from src.server.models.repository.model_repository import ModelRepositoryImpl
 from src.server.models.service.local_model_service import LocalModelServiceImpl
-from src.runtime.runtime_manager import AudioTranscriptionRuntimeManager
+from src.runtime.transcription_runtime_manager import AudioTranscriptionRuntimeManager
 from src.server.app import create_flask_app_with
 
 

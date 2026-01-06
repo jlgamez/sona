@@ -1,5 +1,6 @@
 from typing import Protocol, List
 
+from src.server.exception.model_in_system_exception import ModelInSystemException
 from src.server.models.entity.transcription_model_info import TranscriptionModelInfo
 from src.server.models.repository.model_repository import ModelRepository
 
@@ -13,6 +14,9 @@ class LocalModelService(Protocol):
         pass
 
     def get_default_model_name(self) -> str:
+        pass
+
+    def download_model(self, model_name: str) -> None:
         pass
 
 
@@ -38,3 +42,17 @@ class LocalModelServiceImpl(LocalModelService):
 
     def get_default_model_name(self) -> str:
         return self._model_repository.get_default_model_info()[0]
+
+    def download_model(self, model_name: str) -> None:
+        available_models = self._model_repository.read_available_models()
+        if model_name not in available_models:
+            raise ValueError(f"Model '{model_name}' is not recognized as available.")
+
+        if self.is_model_in_system(model_name):
+            raise ModelInSystemException(
+                f"Model '{model_name}' is already in the system."
+            )
+
+        from src.core.transcription.download_model import download_model_async
+
+        download_model_async(model_name)

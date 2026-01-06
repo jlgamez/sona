@@ -12,6 +12,7 @@ from .transcription_result_handler import (
     TranscriptionResultHandler,
     TranscriptionResultHandlerImpl,
 )
+from ...runtime.shared_executor import get_shared_executor
 
 
 @runtime_checkable
@@ -54,7 +55,6 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         ai_transcriber: AITranscriber,
         cleanup_service: CleanupService,
         result_handler: TranscriptionResultHandler,
-        max_workers: int = 1,
     ):
         """Initialize the orchestrator with all required components.
 
@@ -71,9 +71,7 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         self._result_handler = result_handler or TranscriptionResultHandlerImpl()
 
         # Use single worker to avoid GIL contention and model thread-safety issues
-        self._executor = ThreadPoolExecutor(
-            max_workers=max_workers, thread_name_prefix="transcription"
-        )
+        self._executor = get_shared_executor()
 
         # Register shutdown hook to ensure cleanup on app exit
         atexit.register(self.shutdown)
@@ -122,7 +120,6 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         Waits for pending tasks to complete before shutting down.
         """
         try:
-            self._executor.shutdown(wait=True, cancel_futures=False)
             self._ai_transcriber.teardown()
 
             print("[DEBUG] BackgroundTranscriptionOrchestrator shutdown complete")

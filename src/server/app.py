@@ -9,6 +9,7 @@ from .config.serivce.config_load_service_impl import ConfigLoadServiceImpl
 from .config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
 from .config.entity.user_config import UserConfig, ClipboardBehaviour
 from .config.serivce.config_saving_service import ConfigSavingService
+from .exception.model_in_system_exception import ModelInSystemException
 from .models.repository.model_repository import ModelRepositoryImpl
 from .models.service.local_model_service import LocalModelServiceImpl, LocalModelService
 from .hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
@@ -85,6 +86,48 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
             json.dumps(data, ensure_ascii=False),
             content_type="application/json; charset=utf-8",
         )
+
+    @app.route("/api/download-model", methods=["POST"])
+    def download_model():
+        model_name = request.args.get("name")
+        if not model_name or not isinstance(model_name, str) or not model_name.strip():
+            return (
+                jsonify({"success": False, "error": "Missing or invalid name"}),
+                400,
+            )
+
+        try:
+            model_service.download_model(model_name)
+
+            # We return 202 to align with "accepted" semantics even if the call
+            # completed quickly.
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "state": "accepted",
+                        "model_name": model_name,
+                    }
+                ),
+                202,
+            )
+        except ValueError as e:
+            # LocalModelService raises ValueError for unknown model names.
+            return jsonify({"success": False, "error": str(e)}), 400
+        except ModelInSystemException:
+            # Model is already in the system, so we return 200.
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "state": "completed",
+                        "model_name": model_name,
+                    }
+                ),
+                200,
+            )
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
 
     def parse_submitted_config(data: dict) -> UserConfig | None:
         """
