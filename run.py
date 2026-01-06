@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 
 from src.AppServices import AppServices
+from src.event_management.event_messenger import EventMessenger
+from src.event_management.events import Event
 from src.server.app import FlaskServices
 from src.server.config.repository.config_repository import ConfigRepositoryImpl
 from src.server.config.serivce.config_load_service_impl import ConfigLoadServiceImpl
@@ -39,6 +41,9 @@ def bootstrap() -> None:
     app_services = AppServices(project_root, config_loader, hot_key_service)
 
     audio_transcription_runtime = AudioTranscriptionRuntimeManager(app_services)
+    # enure runtime is reloaded on config change though event subscription
+    messenger = EventMessenger.get_instance()
+    messenger.subscribe(Event.CONFIG_SAVED, audio_transcription_runtime.reload)
     audio_transcription_runtime.start()
 
     flask_app = create_flask_app_with(

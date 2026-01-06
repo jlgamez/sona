@@ -6,13 +6,12 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 
 from src.audio.audio_validator import AudioValidator, AudioValidatorImpl
-from .model_adapter import ModelAdapter, ModelAdapterImpl
+from .model_adapter import ModelAdapter
 from .cleanup_service import CleanupService, CleanupServiceImpl
 from .transcription_result_handler import (
     TranscriptionResultHandler,
     TranscriptionResultHandlerImpl,
 )
-from .device_selector import DeviceSelectorImpl
 
 
 @runtime_checkable
@@ -124,6 +123,8 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         """
         try:
             self._executor.shutdown(wait=True, cancel_futures=False)
+            self._model_adapter.teardown_current_model()
+
             print("[DEBUG] BackgroundTranscriptionOrchestrator shutdown complete")
         except Exception as e:
             print(f"[WARNING] Error during orchestrator shutdown: {e}")

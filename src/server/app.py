@@ -13,6 +13,8 @@ from .models.repository.model_repository import ModelRepositoryImpl
 from .models.service.local_model_service import LocalModelServiceImpl, LocalModelService
 from .hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
 from .hot_key.service.hot_key_service import HotKeyServiceImpl, HotKeyService
+from ..event_management.event_messenger import EventMessenger
+from ..event_management.events import Event
 
 
 @dataclasses.dataclass
@@ -30,6 +32,7 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
     hot_key_service = flask_services.hot_key_service
     config_loader = flask_services.config_loader
     config_saver = flask_services.config_saver
+    messenger = EventMessenger.get_instance()
 
     @app.route("/")
     def index():
@@ -51,6 +54,7 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
                     )
                 success = config_saver.save_user_config(config)
                 if success:
+                    messenger.emit(Event.CONFIG_SAVED)
                     return jsonify({"success": True}), 200
                 else:
                     return (

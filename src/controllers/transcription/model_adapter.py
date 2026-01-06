@@ -25,6 +25,9 @@ class ModelAdapter(Protocol):
         """Transcribe the given audio input and return a dictionary with the transcription and metadata."""
         pass
 
+    def teardown_current_model(self):
+        pass
+
 
 class ModelAdapterImpl(ModelAdapter):
     """ModelAdapterImpl
@@ -50,9 +53,10 @@ class ModelAdapterImpl(ModelAdapter):
             device_selector: Optional DeviceSelector for hardware detection. Defaults to DeviceSelectorImpl.
         """
         self._device_selector = device_selector or DeviceSelectorImpl()
+        self._device = self._device_selector.select_device()
+
         self.model_name = model_name
 
-        ModelAdapterImpl._device = self._device_selector.select_device()
         self._load_model()
 
     def _load_model(self) -> whisper.Whisper:
@@ -63,9 +67,7 @@ class ModelAdapterImpl(ModelAdapter):
         """
         with self._model_lock:
             if ModelAdapterImpl._model is None:
-                ModelAdapterImpl._model = whisper.load_model(
-                    self.model_name, device=ModelAdapterImpl._device
-                )
+                self._model = whisper.load_model(self.model_name, device=self._device)
             return ModelAdapterImpl._model
 
     def transcribe(self, audio: Path) -> Dict[str, Any]:
@@ -78,4 +80,7 @@ class ModelAdapterImpl(ModelAdapter):
             Dictionary containing transcription text and metadata from Whisper.
         """
         # Whisper API accepts either a numpy.ndarray waveform or a string path. Cast Path -> str for compatibility.
-        return ModelAdapterImpl._model.transcribe(audio=str(audio))
+        return self._model.transcribe(audio=str(audio))
+
+    def teardown_current_model(self):
+        self._model = None
