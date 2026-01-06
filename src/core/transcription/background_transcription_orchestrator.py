@@ -5,11 +5,14 @@ from typing import Protocol, runtime_checkable
 from concurrent.futures import ThreadPoolExecutor
 import atexit
 
-from src.audio.audio_loader import AudioValidator, AudioValidatorImpl
-from .model_adapter import ModelAdapter, ModelAdapterImpl
+from src.audio.audio_validator import AudioValidator, AudioValidatorImpl
+from .ai_transcriber import AITranscriber
 from .cleanup_service import CleanupService, CleanupServiceImpl
-from .transcription_result_handler import TranscriptionResultHandler, TranscriptionResultHandlerImpl
-from .device_selector import DeviceSelectorImpl
+from .transcription_result_handler import (
+    TranscriptionResultHandler,
+    TranscriptionResultHandlerImpl,
+)
+from ...runtime.shared_executor import get_shared_executor
 
 
 @runtime_checkable
@@ -49,27 +52,26 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
     def __init__(
         self,
         audio_loader: AudioValidator,
-        model_adapter: ModelAdapter,
+        ai_transcriber: AITranscriber,
         cleanup_service: CleanupService,
         result_handler: TranscriptionResultHandler,
-        max_workers: int = 1
     ):
         """Initialize the orchestrator with all required components.
 
         Args:
             audio_loader: Component to validate audio files. Defaults to AudioValidatorImpl.
-            model_adapter: Component to transcribe audio. Defaults to ModelAdapterImpl.
+            ai_transcriber: Component to transcribe audio. Defaults to ModelAdapterImpl.
             cleanup_service: Component to clean up resources. Defaults to CleanupServiceImpl.
             result_handler: Component to handle results. Defaults to TranscriptionResultHandlerImpl.
             max_workers: Maximum number of worker threads. Default is 1 to avoid GIL contention.
         """
         self._audio_loader = audio_loader or AudioValidatorImpl()
-        self._model_adapter = model_adapter or ModelAdapterImpl(DeviceSelectorImpl())
+        self._ai_transcriber = ai_transcriber
         self._cleanup_service = cleanup_service or CleanupServiceImpl()
         self._result_handler = result_handler or TranscriptionResultHandlerImpl()
 
         # Use single worker to avoid GIL contention and model thread-safety issues
-        self._executor = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="transcription")
+        self._executor = get_shared_executor()
 
         # Register shutdown hook to ensure cleanup on app exit
         atexit.register(self.shutdown)
@@ -93,7 +95,7 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
             self._audio_loader.validate(path)
 
             # Step 2: Transcribe using the file Path (Whisper reads from disk)
-            result = self._model_adapter.transcribe(path)
+            result = self._ai_transcriber.transcribe(path)
 
             # Step 3: Extract text from result
             text = result.get("text", "").strip()
@@ -118,7 +120,8 @@ class BackgroundTranscriptionOrchestratorImpl(BackgroundTranscriptionOrchestrato
         Waits for pending tasks to complete before shutting down.
         """
         try:
-            self._executor.shutdown(wait=True, cancel_futures=False)
+            self._ai_transcriber.teardown()
+
             print("[DEBUG] BackgroundTranscriptionOrchestrator shutdown complete")
         except Exception as e:
             print(f"[WARNING] Error during orchestrator shutdown: {e}")

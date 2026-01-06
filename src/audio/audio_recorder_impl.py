@@ -10,7 +10,7 @@ from typing import Optional
 from .audio_recorder import AudioRecorder
 
 
-class FfmpegAudioRecorder(AudioRecorder):
+class AudioRecorderImpl(AudioRecorder):
     """Records microphone audio to a temporary file using FFmpeg.
 
     This class provides a concrete implementation of the AudioRecorder interface
@@ -95,7 +95,9 @@ class FfmpegAudioRecorder(AudioRecorder):
 
         from uuid import uuid4
 
-        self._current_temp_audio_file = self._output_dir / f"{uuid4()}.{self._file_extension}"
+        self._current_temp_audio_file = (
+            self._output_dir / f"{uuid4()}.{self._file_extension}"
+        )
 
         input_args = self._build_input_args()
 
@@ -205,7 +207,7 @@ class FfmpegAudioRecorder(AudioRecorder):
         """
 
         if sys.platform == "darwin":
-            #TODO In my case the default mic in Mac is :1 but we need a way to determine the default mic programatically
+            # TODO In my case the default mic in Mac is :1 but we need a way to determine the default mic programatically
             return ["-f", "avfoundation", "-i", ":1"]
 
         if sys.platform.startswith("win"):
