@@ -1,19 +1,15 @@
 import dataclasses
 
+from flask_cors import CORS
 from flask import Flask, jsonify, request, Response
 import json
 
-from .config.repository.config_repository import ConfigRepositoryImpl
 from .config.serivce.config_load_service import ConfigLoadService
-from .config.serivce.config_load_service_impl import ConfigLoadServiceImpl
-from .config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
 from .config.entity.user_config import UserConfig, ClipboardBehaviour
 from .config.serivce.config_saving_service import ConfigSavingService
 from .exception.model_in_system_exception import ModelInSystemException
-from .models.repository.model_repository import ModelRepositoryImpl
-from .models.service.local_model_service import LocalModelServiceImpl, LocalModelService
-from .hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
-from .hot_key.service.hot_key_service import HotKeyServiceImpl, HotKeyService
+from .models.service.local_model_service import  LocalModelService
+from .hot_key.service.hot_key_service import  HotKeyService
 from ..event_management.event_messenger import EventMessenger
 from ..event_management.events import Event
 
@@ -28,6 +24,7 @@ class FlaskServices:
 
 def create_flask_app_with(flask_services: FlaskServices) -> Flask:
     app = Flask(__name__)
+    CORS(app)  # Enable CORS for all origins
 
     model_service = flask_services.model_service
     hot_key_service = flask_services.hot_key_service

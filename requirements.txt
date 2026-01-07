@@ -4,4 +4,4 @@ pynput
 numpy
 tqdm
 Flask==3.1.2
-
+flask-cors
