@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-import subprocess
 from typing import Protocol, runtime_checkable
 from pynput.keyboard import Key, Controller as KeyboardController
+
+from src.server.config.serivce.ConfigLoadServiceFactory import ConfigLoadServiceFactory
+from src.utils import clipboard
 
 
 @runtime_checkable
@@ -30,20 +32,27 @@ class TranscriptionResultHandlerImpl(TranscriptionResultHandler):
         print(f"[TRANSCRIPTION SUCCESS] {text}")
         # add new line
         text_with_newline = text + "\n\n"
-        # TODO: adapt copy paste cmd for cross platform
+
         try:
-            copy = subprocess.Popen(["pbcopy"], stdin=subprocess.PIPE)
-            if copy is None:
-                raise RuntimeError("Failed to launch pbcopy")
-            copy.stdin.write(text_with_newline.encode("utf-8"))
-            copy.stdin.close()
-            copy.wait(timeout=2)
+            clipboard.set_text(text_with_newline)
         except Exception as exception:
             self.handle_error(exception)
             return
 
         try:
-            self._paste_action()
+            config = ConfigLoadServiceFactory.get_config_loader().load_config()
+            clipboard_behaviour = config.clipboard_behaviour
+
+            if clipboard_behaviour.autonomous_pasting:
+                self._paste_action()
+
+            should_keep_output_in_clipboard = (
+                clipboard_behaviour.keep_output_in_clipboard
+            )
+            if not should_keep_output_in_clipboard:
+                # Wipe clipboard contents after we've pasted (or immediately if paste is disabled)
+                clipboard.clear()
+
         except Exception as exception:
             self.handle_error(exception)
 
@@ -57,8 +66,5 @@ class TranscriptionResultHandlerImpl(TranscriptionResultHandler):
         keyboard.release(Key.cmd)
         keyboard.release("v")
 
-
-
     def handle_error(self, exc: Exception) -> None:
         print(f"[TRANSCRIPTION ERROR] {type(exc).__name__}: {exc}")
-

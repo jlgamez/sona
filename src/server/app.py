@@ -24,7 +24,7 @@ class FlaskServices:
 
 def create_flask_app_with(flask_services: FlaskServices) -> Flask:
     app = Flask(__name__)
-    CORS(app)  # Enable CORS for all origins
+    CORS(app, resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all API routes
 
     model_service = flask_services.model_service
     hot_key_service = flask_services.hot_key_service
