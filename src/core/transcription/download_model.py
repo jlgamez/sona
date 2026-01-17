@@ -3,8 +3,8 @@ Download a Whisper model by name using Whisper's load_model.
 This function only ensures the model is present in the local cache.
 """
 
-from src.event_management.event_messenger import EventMessenger
-from src.event_management.events import Event
+from src.event_management.EventMessenger import EventMessenger
+from src.event_management.Event import Event
 from src.runtime.shared_executor import get_shared_executor
 
 

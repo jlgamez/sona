@@ -5,8 +5,8 @@ from threading import RLock, Thread
 from typing import Optional
 
 from src.AppServices import AppServices
-from src.core.hot_key.hotkey_controller import HotkeyController
-from src.core.transcription.background_transcription_orchestrator import (
+from src.core.hot_key.HotkeyController import HotkeyController
+from src.core.transcription.BackgroundTranscriptionOrchestrator import (
     BackgroundTranscriptionOrchestratorImpl,
 )
 

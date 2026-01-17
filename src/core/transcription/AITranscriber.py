@@ -12,7 +12,7 @@ from typing import (
     runtime_checkable,
     TYPE_CHECKING,
 )
-from .device.device_manager import DeviceManager
+from .device.DeviceManager import DeviceManager
 
 if TYPE_CHECKING:  # pragma: no cover
     import whisper  # type: ignore

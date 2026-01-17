@@ -1,4 +1,4 @@
-from src.server.models.repository.model_repository import ModelRepository, ModelRepositoryImpl
+from src.server.models.repository.ModelRepository import ModelRepository, ModelRepositoryImpl
 
 
 class ModelRepositoryFactory:

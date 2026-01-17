@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from .audio_recorder import AudioRecorder
+from .AudioRecorder import AudioRecorder
 
 
 class AudioRecorderImpl(AudioRecorder):

@@ -1,7 +1,7 @@
-from src.core.transcription.device.device_cleanup_service import (
+from src.core.transcription.device.DeviceCleanupService import (
     DeviceCleanupServiceImpl,
 )
-from src.core.transcription.device.device_selector import DeviceSelectorImpl
+from src.core.transcription.device.DeviceSelector import DeviceSelectorImpl
 
 
 class DeviceManager:

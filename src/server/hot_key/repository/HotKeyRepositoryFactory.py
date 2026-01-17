@@ -1,4 +1,4 @@
-from src.server.hot_key.repository.hot_key_repository import HotKeyRepository, HotKeyRepositoryImpl
+from src.server.hot_key.repository.HotKeyRepository import HotKeyRepository, HotKeyRepositoryImpl
 
 
 class HotKeyRepositoryFactory:

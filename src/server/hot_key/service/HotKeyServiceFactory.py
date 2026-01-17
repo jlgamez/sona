@@ -1,5 +1,5 @@
 from src.server.hot_key.repository.HotKeyRepositoryFactory import HotKeyRepositoryFactory
-from src.server.hot_key.service.hot_key_service import HotKeyService, HotKeyServiceImpl
+from src.server.hot_key.service.HotKeyService import HotKeyService, HotKeyServiceImpl
 
 
 class HotKeyServiceFactory:

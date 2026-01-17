@@ -2,8 +2,8 @@ import json
 from dataclasses import asdict
 
 from src.server.config.entity.user_config import UserConfig
-from src.server.config.repository.config_repository import ConfigRepository
-from src.server.config.serivce.config_saving_service import ConfigSavingService
+from src.server.config.repository.ConfigRepository import ConfigRepository
+from src.server.config.serivce.ConfigSavingService import ConfigSavingService
 
 
 class ConfigSaverServiceImpl(ConfigSavingService):

@@ -1,7 +1,7 @@
 from src.server.config.repository.ConfigRepositoryFactory import ConfigRepositoryFactory
-from src.server.config.repository.config_repository import ConfigRepositoryImpl
-from src.server.config.serivce.config_load_service import ConfigLoadService
-from src.server.config.serivce.config_load_service_impl import ConfigLoadServiceImpl
+from src.server.config.repository.ConfigRepository import ConfigRepositoryImpl
+from src.server.config.serivce.ConfigLoadService import ConfigLoadService
+from src.server.config.serivce.ConfigLoadServiceImpl import ConfigLoadServiceImpl
 from src.server.hot_key.service.HotKeyServiceFactory import HotKeyServiceFactory
 from src.server.models.service.LocalModelServiceFactory import LocalModelServiceFactory
 

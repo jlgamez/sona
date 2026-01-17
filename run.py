@@ -7,21 +7,21 @@ import sys
 from pathlib import Path
 
 from src.AppServices import AppServices
-from src.event_management.event_messenger import EventMessenger
-from src.event_management.events import Event
+from src.event_management.EventMessenger import EventMessenger
+from src.event_management.Event import Event
 from src.server.app import FlaskServices
-from src.server.config.repository.config_repository import ConfigRepositoryImpl
+from src.server.config.repository.ConfigRepository import ConfigRepositoryImpl
 from src.server.config.serivce.ConfigLoadServiceFactory import ConfigLoadServiceFactory
 from src.server.config.serivce.ConfigSaverServiceFactory import ConfigSaverServiceFactory
-from src.server.config.serivce.config_load_service_impl import ConfigLoadServiceImpl
-from src.server.config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
-from src.server.hot_key.repository.hot_key_repository import HotKeyRepositoryImpl
+from src.server.config.serivce.ConfigLoadServiceImpl import ConfigLoadServiceImpl
+from src.server.config.serivce.ConfigSaverServiceImpl import ConfigSaverServiceImpl
+from src.server.hot_key.repository.HotKeyRepository import HotKeyRepositoryImpl
 from src.server.hot_key.service.HotKeyServiceFactory import HotKeyServiceFactory
-from src.server.hot_key.service.hot_key_service import HotKeyServiceImpl
-from src.server.models.repository.model_repository import ModelRepositoryImpl
+from src.server.hot_key.service.HotKeyService import HotKeyServiceImpl
+from src.server.models.repository.ModelRepository import ModelRepositoryImpl
 from src.server.models.service.LocalModelServiceFactory import LocalModelServiceFactory
-from src.server.models.service.local_model_service import LocalModelServiceImpl
-from src.runtime.transcription_runtime_manager import AudioTranscriptionRuntimeManager
+from src.server.models.service.LocalModelService import LocalModelServiceImpl
+from src.runtime.AudioTranscriptionRuntimeManager import AudioTranscriptionRuntimeManager
 from src.server.app import create_flask_app_with
 
 

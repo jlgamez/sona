@@ -22,8 +22,8 @@ class ModelDownloadManager:
             return model_name in self._active_downloads
 
     def _subscribe_to_download_complete_event(self):
-        from src.event_management.event_messenger import EventMessenger
-        from src.event_management.events import Event
+        from src.event_management.EventMessenger import EventMessenger
+        from src.event_management.Event import Event
 
         EventMessenger.get_instance().subscribe(
             Event.MODEL_DOWNLOAD_COMPLETE, self._on_download_complete

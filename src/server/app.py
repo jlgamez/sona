@@ -4,14 +4,14 @@ from flask_cors import CORS
 from flask import Flask, jsonify, request, Response
 import json
 
-from .config.serivce.config_load_service import ConfigLoadService
+from .config.serivce.ConfigLoadService import ConfigLoadService
 from .config.entity.user_config import UserConfig, ClipboardBehaviour
-from .config.serivce.config_saving_service import ConfigSavingService
-from .exception.model_in_system_exception import ModelInSystemException
-from .models.service.local_model_service import  LocalModelService
-from .hot_key.service.hot_key_service import  HotKeyService
-from ..event_management.event_messenger import EventMessenger
-from ..event_management.events import Event
+from .config.serivce.ConfigSavingService import ConfigSavingService
+from .exception.ModelInSystemException import ModelInSystemException
+from .models.service.LocalModelService import  LocalModelService
+from .hot_key.service.HotKeyService import  HotKeyService
+from ..event_management.EventMessenger import EventMessenger
+from ..event_management.Event import Event
 
 
 @dataclasses.dataclass

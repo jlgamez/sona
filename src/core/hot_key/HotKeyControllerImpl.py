@@ -4,8 +4,8 @@ from typing import Optional, Any, Set
 
 from pynput.keyboard import Listener as KeyboardListener, Key, KeyCode
 
-from .hotkey_actions import HotKeyActions
-from .hotkey_controller import HotkeyController
+from .HotKeyActions import HotKeyActions
+from .HotkeyController import HotkeyController
 from .hotkey_mapping import HotkeyDefinition, map_hotkey_string
 
 

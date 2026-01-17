@@ -6,9 +6,9 @@ from concurrent.futures import ThreadPoolExecutor
 import atexit
 
 from src.audio.audio_validator import AudioValidator, AudioValidatorImpl
-from .ai_transcriber import AITranscriber
-from .cleanup_service import CleanupService, CleanupServiceImpl
-from .transcription_result_handler import (
+from .AITranscriber import AITranscriber
+from .CleanupService import CleanupService, CleanupServiceImpl
+from .TranscriptionResultHandler import (
     TranscriptionResultHandler,
     TranscriptionResultHandlerImpl,
 )

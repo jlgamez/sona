@@ -4,8 +4,8 @@ from src.server.config.entity.user_config import (
     ClipboardBehaviour,
     UserConfig,
 )
-from src.server.config.repository.config_repository import ConfigRepository
-from src.server.config.serivce.config_load_service import ConfigLoadService
+from src.server.config.repository.ConfigRepository import ConfigRepository
+from src.server.config.serivce.ConfigLoadService import ConfigLoadService
 
 
 class ConfigLoadServiceImpl(ConfigLoadService):

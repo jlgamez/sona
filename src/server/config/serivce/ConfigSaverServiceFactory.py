@@ -1,6 +1,6 @@
 from src.server.config.repository.ConfigRepositoryFactory import ConfigRepositoryFactory
-from src.server.config.serivce.config_saver_service_impl import ConfigSaverServiceImpl
-from src.server.config.serivce.config_saving_service import ConfigSavingService
+from src.server.config.serivce.ConfigSaverServiceImpl import ConfigSaverServiceImpl
+from src.server.config.serivce.ConfigSavingService import ConfigSavingService
 
 
 class ConfigSaverServiceFactory:

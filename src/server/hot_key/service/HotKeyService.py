@@ -1,7 +1,7 @@
 from typing import List, Protocol
 
-from src.server.hot_key.entity.hot_key_option import HotKeyOption
-from src.server.hot_key.repository.hot_key_repository import (
+from src.server.hot_key.entity.HotKeyOption import HotKeyOption
+from src.server.hot_key.repository.HotKeyRepository import (
     HotKeyRepository,
     HotKeyTuple,
 )

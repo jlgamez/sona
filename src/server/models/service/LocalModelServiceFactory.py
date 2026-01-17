@@ -1,5 +1,5 @@
 from src.server.models.repository.ModelRepositoryFactory import ModelRepositoryFactory
-from src.server.models.service.local_model_service import LocalModelService, LocalModelServiceImpl
+from src.server.models.service.LocalModelService import LocalModelService, LocalModelServiceImpl
 
 
 class LocalModelServiceFactory:

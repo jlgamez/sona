@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from src.audio.audio_recorder import AudioRecorder
-from src.core.transcription.background_transcription_orchestrator import (
+from src.audio.AudioRecorder import AudioRecorder
+from src.core.transcription.BackgroundTranscriptionOrchestrator import (
     BackgroundTranscriptionOrchestrator,
 )
 

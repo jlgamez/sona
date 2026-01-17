@@ -1,10 +1,10 @@
 from threading import Lock
 from typing import Protocol, List
 
-from src.server.exception.model_in_system_exception import ModelInSystemException
-from src.server.models.entity.transcription_model_info import TranscriptionModelInfo
-from src.server.models.repository.model_repository import ModelRepository
-from src.server.models.service.model_download_manager import ModelDownloadManager
+from src.server.exception.ModelInSystemException import ModelInSystemException
+from src.server.models.entity.TranscriptionModelInfo import TranscriptionModelInfo
+from src.server.models.repository.ModelRepository import ModelRepository
+from src.server.models.service.ModelDownloadManager import ModelDownloadManager
 
 
 class LocalModelService(Protocol):

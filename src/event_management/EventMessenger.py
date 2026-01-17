@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Callable, Optional, DefaultDict, List
 
-from src.event_management.events import Event
+from src.event_management.Event import Event
 
 
 class EventMessenger:

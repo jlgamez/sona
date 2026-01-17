@@ -1,22 +1,22 @@
 from pathlib import Path
 
 from src.audio.audio_validator import AudioValidatorImpl
-from src.audio.audio_recorder_impl import AudioRecorderImpl
-from src.core.hot_key.hotkey_actions import HotKeyActions
-from src.core.hot_key.hotkey_controller import HotkeyController
-from src.core.hot_key.hotkey_controller_impl import HotKeyControllerImpl
-from src.core.transcription.ai_transcriber import AITranscriberImpl
-from src.core.transcription.background_transcription_orchestrator import (
+from src.audio.AudioRecorderImpl import AudioRecorderImpl
+from src.core.hot_key.HotKeyActions import HotKeyActions
+from src.core.hot_key.HotkeyController import HotkeyController
+from src.core.hot_key.HotKeyControllerImpl import HotKeyControllerImpl
+from src.core.transcription.AITranscriber import AITranscriberImpl
+from src.core.transcription.BackgroundTranscriptionOrchestrator import (
     BackgroundTranscriptionOrchestrator,
     BackgroundTranscriptionOrchestratorImpl,
 )
-from src.core.transcription.cleanup_service import CleanupServiceImpl
-from src.core.transcription.transcription_result_handler import (
+from src.core.transcription.CleanupService import CleanupServiceImpl
+from src.core.transcription.TranscriptionResultHandler import (
     TranscriptionResultHandlerImpl,
 )
-from src.server.config.serivce.config_load_service import ConfigLoadService
-from src.server.hot_key.service.hot_key_service import HotKeyService
-from src.utils.bundled_ffmpeg import get_bundled_ffmpeg
+from src.server.config.serivce.ConfigLoadService import ConfigLoadService
+from src.server.hot_key.service.HotKeyService import HotKeyService
+from src.utils.BundledFfmpeg import get_bundled_ffmpeg
 
 
 class AppServices:

@@ -1,4 +1,4 @@
-from src.server.config.repository.config_repository import ConfigRepository, ConfigRepositoryImpl
+from src.server.config.repository.ConfigRepository import ConfigRepository, ConfigRepositoryImpl
 
 
 class ConfigRepositoryFactory:
