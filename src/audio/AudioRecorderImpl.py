@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import atexit
+import os
 import shutil
 import subprocess
 import sys
@@ -45,10 +46,10 @@ class AudioRecorderImpl(AudioRecorder):
     """
 
     def __init__(
-        self,
-        output_dir: Path,
-        file_extension: str = "wav",
-        ffmpeg_executable: str = "ffmpeg",
+            self,
+            output_dir: Path,
+            file_extension: str = "wav",
+            ffmpeg_executable: str = "ffmpeg",
     ) -> None:
         """Initialize the recorder.
 
@@ -60,17 +61,10 @@ class AudioRecorderImpl(AudioRecorder):
             ffmpeg_executable: Name or path of the ``ffmpeg`` executable to
                 invoke. Resolved via :func:`shutil.which` for portability.
         """
-
         if not output_dir.exists():
             output_dir.mkdir(parents=True, exist_ok=True)
 
-        resolved = shutil.which(ffmpeg_executable)
-        if resolved is None:
-            raise RuntimeError(
-                f"ffmpeg executable '{ffmpeg_executable}' not found in PATH"
-            )
-
-        self._ffmpeg_path: str = resolved
+        self._ffmpeg_path: str = self._resolve_ffmpeg_path(ffmpeg_executable)
         self._output_dir: Path = output_dir
         self._file_extension: str = file_extension
 
@@ -79,6 +73,29 @@ class AudioRecorderImpl(AudioRecorder):
 
         # Ensure any child process is cleaned up on interpreter exit.
         atexit.register(self._cleanup_on_exit)
+
+    def _resolve_ffmpeg_path(self, executable: str) -> str:
+        ffmpeg_path = Path(executable)
+
+        if ffmpeg_path.is_absolute():
+            if not ffmpeg_path.exists():
+                raise RuntimeError(
+                    f"ffmpeg executable not found at {ffmpeg_path}"
+                )
+            # Ensure executable
+            try:
+                os.chmod(ffmpeg_path, 0o755)
+            except PermissionError:
+                pass
+
+            return str(ffmpeg_path)
+        else:
+            resolved = shutil.which(executable)
+            if resolved is None:
+                raise RuntimeError(
+                    f"ffmpeg executable '{executable}' not found in PATH"
+                )
+            return resolved
 
     def start(self) -> None:
         """Begin capturing audio from the default input device.
@@ -96,7 +113,7 @@ class AudioRecorderImpl(AudioRecorder):
         from uuid import uuid4
 
         self._current_temp_audio_file = (
-            self._output_dir / f"{uuid4()}.{self._file_extension}"
+                self._output_dir / f"{uuid4()}.{self._file_extension}"
         )
 
         input_args = self._build_input_args()

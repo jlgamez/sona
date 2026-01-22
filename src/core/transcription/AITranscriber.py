@@ -12,6 +12,7 @@ from typing import (
     runtime_checkable,
     TYPE_CHECKING,
 )
+
 from .device.DeviceManager import DeviceManager
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -36,9 +37,9 @@ class AITranscriberImpl(AITranscriber):
     _model_lock = threading.Lock()
 
     def __init__(
-        self,
-        model_name: str,
-        device_manager: Optional[DeviceManager] = None,
+            self,
+            model_name: str,
+            device_manager: Optional[DeviceManager] = None,
     ) -> None:
         self._model_name = model_name
         self._device_manager = device_manager or DeviceManager()
@@ -63,6 +64,7 @@ class AITranscriberImpl(AITranscriber):
         try:
             return model.transcribe(audio=str(audio))
         except Exception as exc:  # pragma: no cover
+            print(str(exc))
             raise RuntimeError("Transcription failed") from exc
 
     def teardown(self) -> None:

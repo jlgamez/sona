@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar, Optional
@@ -21,7 +22,7 @@ class BundledFfmpeg:
 
     env_path_key: str = "PATH"
     env_imageio_key: str = "IMAGEIO_FFMPEG_EXE"
-    instance:  ClassVar[Optional["BundledFfmpeg"]] = None
+    instance: ClassVar[Optional["BundledFfmpeg"]] = None
 
     @classmethod
     def get_instance(cls) -> BundledFfmpeg:
@@ -64,5 +65,6 @@ class BundledFfmpeg:
 
 
 def get_bundled_ffmpeg(repo_root: Path) -> Path:
+    repo_dir = Path(getattr(sys, "_MEIPASS")) if getattr(sys, "frozen", False) else repo_root
     bundled_ffmpeg = BundledFfmpeg.get_instance()
-    return bundled_ffmpeg.configure(repo_root)
+    return bundled_ffmpeg.configure(repo_dir)
