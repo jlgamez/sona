@@ -56,4 +56,4 @@ Types: `feat fix refactor perf docs style test chore`. Scopes: `transcription ho
 - macOS only (clipboard, paste, avfoundation). Needs Accessibility, Input Monitoring and Microphone permissions
 - Never commit `.env` or the `./ffmpeg` binary (both gitignored)
 - Microphone is chosen by name via the `mic_device` config field (null = system default); a missing device falls back to the default
-- Flask runs with `debug=True` and open CORS; harden before shipping
+- Server binds to `127.0.0.1` only, debug off. Port: `--port` or `SONA_PORT` (default 5000). CORS origins: `SONA_ALLOWED_ORIGINS` (comma-separated; defaults to Vite dev and Electron `null`). No auth token

@@ -1,6 +1,6 @@
 # Plan 001: Mic selection, server hardening, paste timing
 
-Status: in progress (1. mic selection: done)
+Status: in progress (1. mic selection: done, 2. server hardening: done)
 
 ## Goal
 
@@ -19,7 +19,7 @@ Fix the three biggest issues found in the backend review so the UI and Electron 
 
 **Done when:** the mic is chosen from the UI, survives restarts, and a missing device does not break recording.
 
-## 2. Server hardening
+## 2. Server hardening (done)
 
 **Problem:** `flask_app.run(debug=True)` exposes the Werkzeug debugger, CORS allows any origin, and the port is not controlled by the caller.
 

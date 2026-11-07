@@ -1,5 +1,6 @@
 import dataclasses
-from typing import Callable, List
+import traceback
+from typing import Callable, List, Tuple
 
 from flask_cors import CORS
 from flask import Flask, jsonify, request, Response
@@ -25,9 +26,17 @@ class FlaskServices:
     audio_device_lister: Callable[[], List[AudioDevice]]
 
 
-def create_flask_app_with(flask_services: FlaskServices) -> Flask:
+def internal_error(exc: Exception) -> Tuple[Response, int]:
+    """Log the exception server-side and return a generic 500 without internals."""
+    traceback.print_exception(type(exc), exc, exc.__traceback__)
+    return jsonify({"success": False, "error": "Internal server error"}), 500
+
+
+def create_flask_app_with(
+    flask_services: FlaskServices, allowed_origins: List[str]
+) -> Flask:
     app = Flask(__name__)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all API routes
+    CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
     model_service = flask_services.model_service
     hot_key_service = flask_services.hot_key_service
@@ -62,8 +71,8 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
                         jsonify({"success": False, "error": "Failed to save config"}),
                         500,
                     )
-            except Exception as e:
-                return jsonify({"success": False, "error": str(e)}), 400
+            except Exception:
+                return jsonify({"success": False, "error": "Malformed request"}), 400
 
         return None
 
@@ -86,7 +95,7 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
                 content_type="application/json; charset=utf-8",
             )
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)}), 500
+            return internal_error(e)
 
     @app.route("/api/hot-keys", methods=["GET"])
     def get_available_hot_keys():
@@ -138,7 +147,7 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
                 200,
             )
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)}), 500
+            return internal_error(e)
 
     @app.route("/api/model-download-state", methods=["GET"])
     def get_model_download_state():
@@ -178,7 +187,7 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
                 200,
             )
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)}), 500
+            return internal_error(e)
 
     @app.route("/api/delete-model", methods=["POST"])
     def delete_model():
@@ -202,7 +211,7 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
                     404,
                 )
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)}), 500
+            return internal_error(e)
 
     def set_default_model_if_current_was_deleted(model_name: str) -> None:
         config = config_loader.load_config()

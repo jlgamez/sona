@@ -10,6 +10,7 @@ from src.AppServices import AppServices
 from src.event_management.EventMessenger import EventMessenger
 from src.event_management.Event import Event
 from src.server.app import FlaskServices
+from src.server.server_settings import ServerSettings
 from src.server.config.repository.ConfigRepository import ConfigRepositoryImpl
 from src.server.config.serivce.ConfigLoadServiceFactory import ConfigLoadServiceFactory
 from src.server.config.serivce.ConfigSaverServiceFactory import ConfigSaverServiceFactory
@@ -26,6 +27,7 @@ from src.server.app import create_flask_app_with
 
 
 def bootstrap() -> None:
+    settings = ServerSettings.from_args(sys.argv[1:])
     project_root = Path(__file__).resolve().parent
     src_path = project_root / "src"
 
@@ -53,9 +55,13 @@ def bootstrap() -> None:
             config_loader,
             config_saver,
             app_services.list_audio_devices,
-        )
+        ),
+        settings.allowed_origins,
     )
-    flask_app.run(debug=True, use_reloader=False)
+    print(f"Sona API listening on http://{settings.host}:{settings.port}")
+    flask_app.run(
+        host=settings.host, port=settings.port, debug=False, use_reloader=False
+    )
 
 
 if __name__ == "__main__":

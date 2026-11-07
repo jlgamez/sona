@@ -23,7 +23,7 @@ source .venv/bin/activate
 python run.py
 ```
 
-This starts the hotkey listener and the Flask API server. The selected Whisper model downloads on first use to `~/.cache/whisper/`.
+This starts the hotkey listener and the Flask API server on `127.0.0.1:5000`. Change the port with `--port 5055` or `SONA_PORT`. Allowed UI origins are set with `SONA_ALLOWED_ORIGINS` (comma-separated, default: Vite dev server and Electron). The selected Whisper model downloads on first use to `~/.cache/whisper/`.
 
 Hold the hotkey (default: Left Control) to record, release to transcribe. The text is pasted at the cursor and, depending on settings, kept in the clipboard.
 
