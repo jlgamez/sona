@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Builds the backend as a plain folder (dist/sona-backend/) for the Electron app to spawn.
 from PyInstaller.utils.hooks import collect_all
 
 datas = []
@@ -17,7 +18,15 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        'tkinter',
+        'matplotlib',
+        'IPython',
+        'pytest',
+        'hypothesis',
+        'torch.testing',
+        'torch.distributed',
+    ],
     noarchive=False,
     optimize=0,
 )
@@ -28,15 +37,15 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='Sona',
+    name='sona-backend',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
-    console=False,
+    upx=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
-    target_arch=None,
+    target_arch='arm64',
     codesign_identity=None,
     entitlements_file=None,
 )
@@ -45,13 +54,6 @@ coll = COLLECT(
     a.binaries,
     a.datas,
     strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='Sona',
-)
-app = BUNDLE(
-    coll,
-    name='Sona.app',
-    icon=None,
-    bundle_identifier=None,
+    upx=False,
+    name='sona-backend',
 )
