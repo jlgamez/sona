@@ -1,6 +1,6 @@
 # Plan 001: Mic selection, server hardening, paste timing
 
-Status: in progress (1. mic selection: done, 2. server hardening: done)
+Status: done (1. mic selection, 2. server hardening, 3. paste timing)
 
 ## Goal
 
@@ -33,7 +33,7 @@ Fix the three biggest issues found in the backend review so the UI and Electron 
 
 **Done when:** the server runs without debug mode, listens on localhost on a configurable port, and rejects requests from unlisted origins.
 
-## 3. Paste timing
+## 3. Paste timing (done)
 
 **Problem:** `TranscriptionResultHandlerImpl` fires Cmd+V immediately after writing the clipboard. When `keep_output_in_clipboard` is off, it then restores the old clipboard right away. The target app can read the clipboard after the restore and paste the wrong content.
 
