@@ -8,7 +8,7 @@
 
 - **Run:** `source .venv/bin/activate && python run.py` (`run.py` contains `bootstrap()`, the composition root)
 - **Install:** `pip install -r requirements.txt` (Python 3.11+)
-- **Build:** PyInstaller via `Sona.spec` (gitignored via `*.spec`)
+- **Build:** PyInstaller via `Sona.spec` (tracked; `*.spec` is ignored except this file)
 - **User config:** `~/.sona/user_config.json`; Whisper models: `~/.cache/whisper/`
 - **Tests:** none yet. Use pytest in `tests/`, mirror `src/`, mock pynput / subprocess / whisper
 
