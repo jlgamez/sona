@@ -24,8 +24,6 @@ a = Analysis(
         'IPython',
         'pytest',
         'hypothesis',
-        'torch.testing',
-        'torch.distributed',
     ],
     noarchive=False,
     optimize=0,
