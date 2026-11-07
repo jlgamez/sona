@@ -13,9 +13,12 @@ def download_whisper_model(model_name: str) -> None:
         import whisper
 
         whisper.load_model(model_name, device="cpu")
-        EventMessenger.get_instance().emit(Event.MODEL_DOWNLOAD_COMPLETE, model_name)
     except Exception as exc:
         raise RuntimeError(f"Failed to download Whisper model '{model_name}'") from exc
+    finally:
+        # Also emitted on failure so the model is not reported as downloading forever;
+        # callers tell success from failure by whether the model is in the system.
+        EventMessenger.get_instance().emit(Event.MODEL_DOWNLOAD_COMPLETE, model_name)
 
 
 def download_model_async(model_name: str) -> None:

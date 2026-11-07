@@ -54,7 +54,7 @@ Fix the three biggest issues found in the backend review so the UI and Electron 
 ## Related small fixes to do alongside
 
 - Apply `fix_for_first_attempt_transcription_failure.patch` (None audio path when a recording is too short).
-- Fix `ModelDownloadManager.is_downloading` raising before the first download.
+- Fix `ModelDownloadManager.is_downloading` raising before the first download. (done)
 - Check that `GET /api/user-config` serializes the config dataclass, and remove or implement the unused `PUT` method.
 
 ## Out of scope
