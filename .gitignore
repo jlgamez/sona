@@ -135,3 +135,6 @@ venv.bak/
 
 # Claude Code local settings (user-specific, not shared)
 .claude/settings.local.json
+
+# macOS
+.DS_Store

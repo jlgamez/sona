@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python run.py:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(pip install -r requirements*.txt)",
+      "Bash(./build.sh:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git branch:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(ls:*)",
+      "Bash(tree:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(*rm -rf .git*)",
+      "Bash(*> .env*)",
+      "Bash(*cat .env*)",
+      "Bash(*--force*push*)"
+    ]
+  }
+}
