@@ -17,3 +17,5 @@ class UserConfig:
     clipboard_behaviour: ClipboardBehaviour = field(default_factory=ClipboardBehaviour)
     # Name of the input microphone; None means the system default device.
     mic_device: Optional[str] = None
+    # False until the user finishes the first-run onboarding.
+    onboarding_completed: bool = False

@@ -22,7 +22,7 @@ from src.utils.BundledFfmpeg import get_bundled_ffmpeg
 
 
 class AppServices:
-    TEMP_AUDIO_DIRECTORY: Path = Path("src") / "audio" / "resources" / "temp_audio"
+    TEMP_AUDIO_DIRECTORY: Path = Path.home() / ".sona" / "temp_audio"
 
     def __init__(
         self,
@@ -38,10 +38,21 @@ class AppServices:
             hot_key_service: Service for managing hotkey definitions
         """
         self._ffmpeg_executable = get_bundled_ffmpeg(repo_root)
-        self._temp_audio_directory = repo_root / self.TEMP_AUDIO_DIRECTORY
+        self._temp_audio_directory = self.TEMP_AUDIO_DIRECTORY
+        self._remove_orphaned_recordings()
 
         self._config_loader = config_loader
         self._hot_key_service = hot_key_service
+
+    def _remove_orphaned_recordings(self) -> None:
+        """Delete recordings left behind by a previous run that was killed.
+
+        Runs once at startup, before any recording exists. It must not run
+        when a runtime reloads, or it could delete a file being transcribed.
+        """
+        cleanup = CleanupServiceImpl()
+        for leftover in self._temp_audio_directory.glob("*.wav"):
+            cleanup.delete_file(leftover)
 
     def create_transcription_orchestrator(
         self,

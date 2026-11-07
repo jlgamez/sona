@@ -3,6 +3,7 @@
 Entry point for the Sona Audio Recorder CLI.
 Ensures the project root is in sys.path and launches the main application logic.
 """
+import multiprocessing
 import sys
 from pathlib import Path
 
@@ -11,6 +12,8 @@ from src.event_management.EventMessenger import EventMessenger
 from src.event_management.Event import Event
 from src.server.app import FlaskServices
 from src.server.server_settings import ServerSettings
+from src.utils.MacPermissions import MacPermissionsImpl
+from src.utils.ParentWatcher import ParentWatcher
 from src.server.config.repository.ConfigRepository import ConfigRepositoryImpl
 from src.server.config.serivce.ConfigLoadServiceFactory import ConfigLoadServiceFactory
 from src.server.config.serivce.ConfigSaverServiceFactory import ConfigSaverServiceFactory
@@ -28,6 +31,8 @@ from src.server.app import create_flask_app_with
 
 def bootstrap() -> None:
     settings = ServerSettings.from_args(sys.argv[1:])
+    if settings.exit_when_parent_dies:
+        ParentWatcher().start()
     project_root = Path(__file__).resolve().parent
     src_path = project_root / "src"
 
@@ -55,6 +60,7 @@ def bootstrap() -> None:
             config_loader,
             config_saver,
             app_services.list_audio_devices,
+            MacPermissionsImpl(),
         ),
         settings.allowed_origins,
     )
@@ -65,4 +71,7 @@ def bootstrap() -> None:
 
 
 if __name__ == "__main__":
+    # Required in the PyInstaller build: libraries start helper processes from
+    # this executable, and without this each one would run bootstrap() again.
+    multiprocessing.freeze_support()
     bootstrap()
