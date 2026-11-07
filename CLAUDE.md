@@ -57,4 +57,4 @@ Types: `feat fix refactor perf docs style test chore`. Scopes: `transcription ho
 - Paste timing constants (`PASTE_DELAY_SECONDS`, `RESTORE_DELAY_SECONDS`) live in `TranscriptionResultHandler.py`; set/paste/restore runs under a lock. With auto-paste off the output always stays in the clipboard
 - Never commit `.env` or the `./ffmpeg` binary (both gitignored)
 - Microphone is chosen by name via the `mic_device` config field (null = system default); a missing device falls back to the default
-- Server binds to `127.0.0.1` only, debug off. Port: `--port` or `SONA_PORT` (default 5000). CORS origins: `SONA_ALLOWED_ORIGINS` (comma-separated; defaults to Vite dev and Electron `null`). No auth token
+- Server binds to `127.0.0.1` only, debug off. Port: `--port` or `SONA_PORT` (default 5000). `--exit-when-parent-dies` makes it stop when stdin closes (Electron keeps stdin open; if Electron dies the backend follows). CORS origins: `SONA_ALLOWED_ORIGINS` (comma-separated; defaults to Vite dev and Electron `null`). No auth token

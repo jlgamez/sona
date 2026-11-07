@@ -12,6 +12,7 @@ from src.event_management.EventMessenger import EventMessenger
 from src.event_management.Event import Event
 from src.server.app import FlaskServices
 from src.server.server_settings import ServerSettings
+from src.utils.ParentWatcher import ParentWatcher
 from src.server.config.repository.ConfigRepository import ConfigRepositoryImpl
 from src.server.config.serivce.ConfigLoadServiceFactory import ConfigLoadServiceFactory
 from src.server.config.serivce.ConfigSaverServiceFactory import ConfigSaverServiceFactory
@@ -29,6 +30,8 @@ from src.server.app import create_flask_app_with
 
 def bootstrap() -> None:
     settings = ServerSettings.from_args(sys.argv[1:])
+    if settings.exit_when_parent_dies:
+        ParentWatcher().start()
     project_root = Path(__file__).resolve().parent
     src_path = project_root / "src"
 

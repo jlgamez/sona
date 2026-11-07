@@ -17,7 +17,8 @@ DEFAULT_ALLOWED_ORIGINS = (
 class ServerSettings:
     """Responsibility: hold the Flask server's network settings.
 
-    Interface: ``host`` (always localhost), ``port`` and ``allowed_origins``.
+    Interface: ``host`` (always localhost), ``port``, ``allowed_origins`` and
+    ``exit_when_parent_dies`` (set by ``--exit-when-parent-dies``).
     Build with ``from_args``; port comes from ``--port``, then ``SONA_PORT``;
     origins come from ``SONA_ALLOWED_ORIGINS`` (comma-separated).
     """
@@ -25,11 +26,17 @@ class ServerSettings:
     host: str
     port: int
     allowed_origins: List[str]
+    exit_when_parent_dies: bool = False
 
     @classmethod
     def from_args(cls, argv: Optional[List[str]] = None) -> ServerSettings:
         parser = argparse.ArgumentParser(description="Sona backend")
         parser.add_argument("--port", type=int, default=None)
+        parser.add_argument(
+            "--exit-when-parent-dies",
+            action="store_true",
+            help="Stop when stdin is closed (the parent process exited).",
+        )
         args = parser.parse_args(argv)
 
         port = args.port
@@ -48,4 +55,5 @@ class ServerSettings:
             host="127.0.0.1",
             port=port,
             allowed_origins=origins or list(DEFAULT_ALLOWED_ORIGINS),
+            exit_when_parent_dies=args.exit_when_parent_dies,
         )
