@@ -3,6 +3,7 @@
 Entry point for the Sona Audio Recorder CLI.
 Ensures the project root is in sys.path and launches the main application logic.
 """
+import multiprocessing
 import sys
 from pathlib import Path
 
@@ -65,4 +66,7 @@ def bootstrap() -> None:
 
 
 if __name__ == "__main__":
+    # Required in the PyInstaller build: libraries start helper processes from
+    # this executable, and without this each one would run bootstrap() again.
+    multiprocessing.freeze_support()
     bootstrap()
