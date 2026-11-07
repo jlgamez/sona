@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import threading
 import time
+import traceback
 from typing import Protocol, runtime_checkable
 from pynput.keyboard import Key, Controller as KeyboardController
 
@@ -85,3 +86,5 @@ class TranscriptionResultHandlerImpl(TranscriptionResultHandler):
 
     def handle_error(self, exc: Exception) -> None:
         print(f"[TRANSCRIPTION ERROR] {type(exc).__name__}: {exc}")
+        # Include the chained cause (e.g. the real import error behind "Failed to import whisper").
+        traceback.print_exception(exc)
