@@ -132,4 +132,5 @@ venv.bak/
 # Ignore the ffmpeg binary in the root directory
 /ffmpeg
 
-/.github/instructions/
+# Claude Code local settings (user-specific, not shared)
+.claude/settings.local.json
