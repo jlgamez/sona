@@ -27,7 +27,7 @@
 
 **Flow:** hotkey press -> record -> release -> orchestrator (shared thread pool) -> Whisper -> clipboard/paste -> temp file deleted. Saving config emits `CONFIG_SAVED`, which reloads the runtime.
 
-**API** (`/api/...`): `user-config` (GET/POST), `models`, `hot-keys`, `download-model`, `model-download-state`, `delete-model`.
+**API** (`/api/...`): `user-config` (GET/POST), `models`, `hot-keys`, `audio-devices`, `download-model`, `model-download-state`, `delete-model`.
 
 ## Conventions
 
@@ -55,5 +55,5 @@ Types: `feat fix refactor perf docs style test chore`. Scopes: `transcription ho
 
 - macOS only (clipboard, paste, avfoundation). Needs Accessibility, Input Monitoring and Microphone permissions
 - Never commit `.env` or the `./ffmpeg` binary (both gitignored)
-- macOS mic input is hardcoded to `:1` in `AudioRecorderImpl._build_input_args` (TODO)
+- Microphone is chosen by name via the `mic_device` config field (null = system default); a missing device falls back to the default
 - Flask runs with `debug=True` and open CORS; harden before shipping

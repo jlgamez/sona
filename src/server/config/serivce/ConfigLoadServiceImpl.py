@@ -29,6 +29,7 @@ class ConfigLoadServiceImpl(ConfigLoadService):
             text_selection_awareness=bool(data.get("text_selection_awareness", True)),
             clipboard_behaviour=self._parse_clipboard_behaviour(data),
             current_model=data.get("current_model", "default"),
+            mic_device=data.get("mic_device"),
         )
 
     def _parse_clipboard_behaviour(self, data: Dict[str, Any]) -> ClipboardBehaviour:

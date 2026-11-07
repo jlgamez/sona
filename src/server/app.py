@@ -1,9 +1,11 @@
 import dataclasses
+from typing import Callable, List
 
 from flask_cors import CORS
 from flask import Flask, jsonify, request, Response
 import json
 
+from ..audio.audio_devices import AudioDevice
 from .config.serivce.ConfigLoadService import ConfigLoadService
 from .config.entity.user_config import UserConfig, ClipboardBehaviour
 from .config.serivce.ConfigSavingService import ConfigSavingService
@@ -20,6 +22,7 @@ class FlaskServices:
     hot_key_service: HotKeyService
     config_loader: ConfigLoadService
     config_saver: ConfigSavingService
+    audio_device_lister: Callable[[], List[AudioDevice]]
 
 
 def create_flask_app_with(flask_services: FlaskServices) -> Flask:
@@ -30,6 +33,7 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
     hot_key_service = flask_services.hot_key_service
     config_loader = flask_services.config_loader
     config_saver = flask_services.config_saver
+    audio_device_lister = flask_services.audio_device_lister
     messenger = EventMessenger.get_instance()
 
     @app.route("/")
@@ -72,6 +76,17 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
             json.dumps(data, ensure_ascii=False),
             content_type="application/json; charset=utf-8",
         )
+
+    @app.route("/api/audio-devices", methods=["GET"])
+    def get_audio_devices():
+        try:
+            devices = audio_device_lister()
+            return Response(
+                json.dumps([dataclasses.asdict(d) for d in devices], ensure_ascii=False),
+                content_type="application/json; charset=utf-8",
+            )
+        except Exception as e:
+            return jsonify({"success": False, "error": str(e)}), 500
 
     @app.route("/api/hot-keys", methods=["GET"])
     def get_available_hot_keys():
@@ -243,12 +258,18 @@ def create_flask_app_with(flask_services: FlaskServices) -> Flask:
             )
             if not isinstance(current_model, str):
                 return None
+            # mic_device: optional name; null or empty means system default
+            mic_device = data.get("mic_device")
+            if mic_device is not None and not isinstance(mic_device, str):
+                return None
+            mic_device = (mic_device or "").strip() or None
             return UserConfig(
                 hot_key=hot_key,
                 intelligent_mode=intelligent_mode,
                 text_selection_awareness=text_selection_awareness,
                 clipboard_behaviour=clipboard_behaviour,
                 current_model=current_model,
+                mic_device=mic_device,
             )
         except Exception:
             return None

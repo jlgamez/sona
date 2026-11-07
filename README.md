@@ -36,14 +36,14 @@ Grant your terminal/IDE (or the packaged app) in **System Settings > Privacy & S
 
 ## Configuration
 
-Settings live in `~/.sona/user_config.json` and are edited through the API: hotkey, Whisper model, and clipboard behaviour (auto-paste, keep output in clipboard). Saving a config reloads the runtime automatically.
+Settings live in `~/.sona/user_config.json` and are edited through the API: hotkey, microphone, Whisper model, and clipboard behaviour (auto-paste, keep output in clipboard). Saving a config reloads the runtime automatically.
 
-API (`/api/...`): `user-config` (GET/POST), `models`, `hot-keys`, `download-model`, `model-download-state`, `delete-model`.
+API (`/api/...`): `user-config` (GET/POST), `models`, `hot-keys`, `audio-devices`, `download-model`, `model-download-state`, `delete-model`.
 
 ## Troubleshooting
 
 - **Hotkey does nothing:** check Accessibility / Input Monitoring permissions.
-- **No audio or wrong mic:** the macOS input device is currently hardcoded to `:1` in `src/audio/AudioRecorderImpl.py`.
+- **No audio or wrong mic:** pick a microphone via the `mic_device` config field (`GET /api/audio-devices` lists the names). Unset uses the system default.
 - **FFmpeg not found:** make sure `./ffmpeg` exists and is executable.
 - **Slow first run:** the Whisper model is downloading.
 - **Remove cached models:** `rm -rf ~/.cache/whisper`

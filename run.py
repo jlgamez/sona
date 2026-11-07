@@ -52,6 +52,7 @@ def bootstrap() -> None:
             hot_key_service,
             config_loader,
             config_saver,
+            app_services.list_audio_devices,
         )
     )
     flask_app.run(debug=True, use_reloader=False)
