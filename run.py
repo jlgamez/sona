@@ -12,6 +12,7 @@ from src.event_management.EventMessenger import EventMessenger
 from src.event_management.Event import Event
 from src.server.app import FlaskServices
 from src.server.server_settings import ServerSettings
+from src.utils.MacPermissions import MacPermissionsImpl
 from src.utils.ParentWatcher import ParentWatcher
 from src.server.config.repository.ConfigRepository import ConfigRepositoryImpl
 from src.server.config.serivce.ConfigLoadServiceFactory import ConfigLoadServiceFactory
@@ -59,6 +60,7 @@ def bootstrap() -> None:
             config_loader,
             config_saver,
             app_services.list_audio_devices,
+            MacPermissionsImpl(),
         ),
         settings.allowed_origins,
     )

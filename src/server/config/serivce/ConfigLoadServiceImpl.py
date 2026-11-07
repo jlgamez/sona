@@ -30,6 +30,9 @@ class ConfigLoadServiceImpl(ConfigLoadService):
             clipboard_behaviour=self._parse_clipboard_behaviour(data),
             current_model=data.get("current_model", "default"),
             mic_device=data.get("mic_device"),
+            # A config file saved before this field existed belongs to a user
+            # who is already set up, so they skip onboarding.
+            onboarding_completed=bool(data.get("onboarding_completed", True)),
         )
 
     def _parse_clipboard_behaviour(self, data: Dict[str, Any]) -> ClipboardBehaviour:

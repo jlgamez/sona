@@ -15,6 +15,7 @@ from .models.service.LocalModelService import  LocalModelService
 from .hot_key.service.HotKeyService import  HotKeyService
 from ..event_management.EventMessenger import EventMessenger
 from ..event_management.Event import Event
+from ..utils.MacPermissions import PermissionChecker
 
 
 @dataclasses.dataclass
@@ -24,6 +25,7 @@ class FlaskServices:
     config_loader: ConfigLoadService
     config_saver: ConfigSavingService
     audio_device_lister: Callable[[], List[AudioDevice]]
+    permissions: PermissionChecker
 
 
 def internal_error(exc: Exception) -> Tuple[Response, int]:
@@ -43,6 +45,7 @@ def create_flask_app_with(
     config_loader = flask_services.config_loader
     config_saver = flask_services.config_saver
     audio_device_lister = flask_services.audio_device_lister
+    permissions = flask_services.permissions
     messenger = EventMessenger.get_instance()
 
     @app.route("/")
@@ -75,6 +78,32 @@ def create_flask_app_with(
                 return jsonify({"success": False, "error": "Malformed request"}), 400
 
         return None
+
+    @app.route("/api/permissions", methods=["GET"])
+    def get_permissions():
+        try:
+            return jsonify(
+                {
+                    "input_monitoring": permissions.input_monitoring(),
+                    "accessibility": permissions.accessibility(),
+                }
+            )
+        except Exception as e:
+            return internal_error(e)
+
+    @app.route("/api/permissions/request-input-monitoring", methods=["POST"])
+    def request_input_monitoring():
+        try:
+            permissions.request_input_monitoring()
+            return jsonify({"success": True}), 200
+        except Exception as e:
+            return internal_error(e)
+
+    @app.route("/api/runtime/reload", methods=["POST"])
+    def reload_runtime():
+        # Restarts the hotkey listener so a freshly granted permission takes effect.
+        messenger.emit(Event.CONFIG_SAVED)
+        return jsonify({"success": True}), 200
 
     @app.route("/api/models", methods=["GET"])
     def get_available_models():
@@ -272,6 +301,12 @@ def create_flask_app_with(
             if mic_device is not None and not isinstance(mic_device, str):
                 return None
             mic_device = (mic_device or "").strip() or None
+            # A client that does not send the flag must not reset it.
+            onboarding_completed = data.get(
+                "onboarding_completed", config_loader.load_config().onboarding_completed
+            )
+            if not isinstance(onboarding_completed, bool):
+                return None
             return UserConfig(
                 hot_key=hot_key,
                 intelligent_mode=intelligent_mode,
@@ -279,6 +314,7 @@ def create_flask_app_with(
                 clipboard_behaviour=clipboard_behaviour,
                 current_model=current_model,
                 mic_device=mic_device,
+                onboarding_completed=onboarding_completed,
             )
         except Exception:
             return None

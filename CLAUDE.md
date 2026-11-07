@@ -10,7 +10,7 @@
 - **Install:** `pip install -r requirements.txt` (Python 3.11+)
 - **Build:** PyInstaller via `Sona.spec` (tracked; `*.spec` is ignored except this file)
 - **User config:** `~/.sona/user_config.json`; Whisper models: `~/.cache/whisper/`
-- **Tests:** none yet. Use pytest in `tests/`, mirror `src/`, mock pynput / subprocess / whisper
+- **Tests:** `python -m pytest tests` (pytest in `tests/`, mirrors `src/`; mock pynput / subprocess / whisper / ctypes)
 
 ## Module Map
 
@@ -22,12 +22,12 @@
 | `src/runtime/` | `AudioTranscriptionRuntimeManager`: start/stop/reload of hotkey + transcriber |
 | `src/event_management/` | Singleton `EventMessenger` pub/sub + `Event` enum |
 | `src/server/` | Flask app (`app.py`) and `config/`, `hot_key/`, `models/` (entity / repository / service / factory layers) |
-| `src/utils/` | `BundledFfmpeg` (root `./ffmpeg`), `clipboard` (pbcopy/pbpaste) |
+| `src/utils/` | `BundledFfmpeg` (root `./ffmpeg`), `clipboard` (pbcopy/pbpaste), `MacPermissions` (Input Monitoring / Accessibility state via ctypes) |
 | `src/AppServices.py` | Wires recorder, orchestrator, hotkey controller |
 
 **Flow:** hotkey press -> record -> release -> orchestrator (shared thread pool) -> Whisper -> clipboard/paste -> temp file deleted. Saving config emits `CONFIG_SAVED`, which reloads the runtime.
 
-**API** (`/api/...`): `user-config` (GET/POST), `models`, `hot-keys`, `audio-devices`, `download-model`, `model-download-state`, `delete-model`.
+**API** (`/api/...`): `user-config` (GET/POST), `models`, `hot-keys`, `audio-devices`, `permissions` (GET; POST `permissions/request-input-monitoring`), `runtime/reload` (POST), `download-model`, `model-download-state`, `delete-model`.
 
 ## Conventions
 
