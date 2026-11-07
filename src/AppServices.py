@@ -1,5 +1,7 @@
 from pathlib import Path
+from typing import List, Optional
 
+from src.audio.audio_devices import AudioDevice, list_audio_devices
 from src.audio.audio_validator import AudioValidatorImpl
 from src.audio.AudioRecorderImpl import AudioRecorderImpl
 from src.core.hot_key.HotKeyActions import HotKeyActions
@@ -35,15 +37,11 @@ class AppServices:
             config_loader: Service for loading user configuration
             hot_key_service: Service for managing hotkey definitions
         """
-        ffmpeg_executable = get_bundled_ffmpeg(repo_root)
-        temp_audio_directory = repo_root / self.TEMP_AUDIO_DIRECTORY
+        self._ffmpeg_executable = get_bundled_ffmpeg(repo_root)
+        self._temp_audio_directory = repo_root / self.TEMP_AUDIO_DIRECTORY
 
         self._config_loader = config_loader
         self._hot_key_service = hot_key_service
-        self._recorder = AudioRecorderImpl(
-            output_dir=temp_audio_directory,
-            ffmpeg_executable=str(ffmpeg_executable),
-        )
 
     def create_transcription_orchestrator(
         self,
@@ -62,10 +60,14 @@ class AppServices:
         self, orchestrator: BackgroundTranscriptionOrchestrator
     ) -> HotkeyController:
         """Create a new hotkey controller with the given orchestrator."""
-        hot_key_actions = HotKeyActions(
-            recorder=self._recorder, orchestrator=orchestrator
-        )
         user_config = self._config_loader.load_config()
+        # A new recorder per runtime so a changed microphone applies on reload.
+        recorder = AudioRecorderImpl(
+            output_dir=self._temp_audio_directory,
+            ffmpeg_executable=str(self._ffmpeg_executable),
+            input_device=self._resolve_mic_device(user_config.mic_device),
+        )
+        hot_key_actions = HotKeyActions(recorder=recorder, orchestrator=orchestrator)
         resolved_hot_key = self._resolve_hot_key_string(user_config.hot_key)
         return HotKeyControllerImpl(
             hot_key_actions=hot_key_actions,
@@ -86,6 +88,18 @@ class AppServices:
             return available_hot_keys[0].name
         return "ctrl_l"
 
-    def get_recorder(self) -> AudioRecorderImpl:
-        """Get the audio recorder instance."""
-        return self._recorder
+    def list_audio_devices(self) -> List[AudioDevice]:
+        """List the audio input devices currently available."""
+        return list_audio_devices(self._ffmpeg_executable)
+
+    def _resolve_mic_device(self, configured_device: Optional[str]) -> Optional[str]:
+        """Return the configured microphone, or None (system default) if it is unavailable."""
+        if not configured_device:
+            return None
+        available_names = {device.name for device in self.list_audio_devices()}
+        if configured_device in available_names:
+            return configured_device
+        print(
+            f"[WARNING] Microphone '{configured_device}' not found; using system default."
+        )
+        return None

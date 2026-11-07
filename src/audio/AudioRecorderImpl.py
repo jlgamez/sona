@@ -49,6 +49,7 @@ class AudioRecorderImpl(AudioRecorder):
         output_dir: Path,
         file_extension: str = "wav",
         ffmpeg_executable: str = "ffmpeg",
+        input_device: Optional[str] = None,
     ) -> None:
         """Initialize the recorder.
 
@@ -59,6 +60,8 @@ class AudioRecorderImpl(AudioRecorder):
                 the downstream transcription pipeline.
             ffmpeg_executable: Name or path of the ``ffmpeg`` executable to
                 invoke. Resolved via :func:`shutil.which` for portability.
+            input_device: Name of the microphone to record from (macOS).
+                ``None`` uses the system default input device.
         """
 
         if not output_dir.exists():
@@ -73,6 +76,7 @@ class AudioRecorderImpl(AudioRecorder):
         self._ffmpeg_path: str = resolved
         self._output_dir: Path = output_dir
         self._file_extension: str = file_extension
+        self._input_device: Optional[str] = input_device
 
         self._process: Optional[subprocess.Popen[bytes]] = None
         self._current_temp_audio_file: Optional[Path] = None
@@ -207,8 +211,8 @@ class AudioRecorderImpl(AudioRecorder):
         """
 
         if sys.platform == "darwin":
-            # TODO In my case the default mic in Mac is :1 but we need a way to determine the default mic programatically
-            return ["-f", "avfoundation", "-i", ":1"]
+            # avfoundation input is "<video>:<audio>"; audio selected by name, or "default".
+            return ["-f", "avfoundation", "-i", f":{self._input_device or 'default'}"]
 
         if sys.platform.startswith("win"):
             # Windows: DirectShow default audio device.
