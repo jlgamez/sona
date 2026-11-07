@@ -64,11 +64,11 @@ class TranscriptionResultHandlerImpl(TranscriptionResultHandler):
                 should_keep_output_in_clipboard = (
                     clipboard_behaviour.keep_output_in_clipboard
                 )
-                if not should_keep_output_in_clipboard:
-                    if pasted:
-                        # Let the target app read the clipboard before restoring it.
-                        time.sleep(RESTORE_DELAY_SECONDS)
-                    # Wipe clipboard contents after we've pasted (or immediately if paste is disabled)
+                # Without a paste the clipboard is the only output, so it is kept
+                # regardless of keep_output_in_clipboard.
+                if pasted and not should_keep_output_in_clipboard:
+                    # Let the target app read the clipboard before restoring it.
+                    time.sleep(RESTORE_DELAY_SECONDS)
                     clipboard.clear()
 
             except Exception as exception:
